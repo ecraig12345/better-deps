@@ -1,8 +1,7 @@
 import fs from 'fs';
 import os from 'os';
-import path from 'path';
-import { Dependencies, getPackageInfos, getWorkspaceRoot } from 'workspace-tools';
-import { PackageJson } from './types';
+import { getWorkspaceInfo } from './getWorkspaceInfo';
+import { PackageJson, Dependencies } from './types';
 
 const widelyUsedThreshold = 0.5;
 console.log(`"Widely used" threshold: ${Math.round(widelyUsedThreshold * 100)}% of packages\n`);
@@ -118,21 +117,14 @@ function updatePackageJson(packageJson: PackageJson, hoistedDeps: Dependencies) 
  * @param noHoist never hoist these packages
  */
 async function hoistDeps(forceHoist: string[], noHoist: string[]) {
-  const workspaceRoot = getWorkspaceRoot(process.cwd());
-  if (!workspaceRoot) {
-    throw new Error('Directory does not appear to be within a workspace: ' + process.cwd());
-  }
+  const { rootPackageJson, rootPackageJsonPath, packageInfos, localPackages } = getWorkspaceInfo();
 
-  const packageInfos = getPackageInfos(workspaceRoot);
-  const localPackages = Object.keys(packageInfos);
   /** requested noHoist packages + local packages */
   const allNoHoist = [...noHoist, ...localPackages];
 
   const devDeps: CollectedDeps = {};
 
   // collect dev deps from the root package.json
-  const rootPackageJsonPath = path.join(workspaceRoot, 'package.json');
-  const rootPackageJson: PackageJson = JSON.parse(fs.readFileSync(rootPackageJsonPath, 'utf8'));
   collectDevDeps(rootPackageJson, devDeps, allNoHoist);
 
   // collect potentially-hoistable dev deps from all the individual packages

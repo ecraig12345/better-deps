@@ -1,25 +1,14 @@
 import fs from 'fs';
 import os from 'os';
-import path from 'path';
-import { getPackageInfos, getWorkspaceRoot, PackageInfo } from 'workspace-tools';
+import { getWorkspaceInfo } from './getWorkspaceInfo';
 
 async function starLocalDevDeps() {
-  const workspaceRoot = getWorkspaceRoot(process.cwd());
-  if (!workspaceRoot) {
-    throw new Error('Directory does not appear to be within a workspace: ' + process.cwd());
-  }
+  const { packageInfos, localPackages, rootPackageJson, rootPackageJsonPath } = getWorkspaceInfo();
 
-  const rootPackageJsonPath = path.join(workspaceRoot, 'package.json');
-  const rootPackageInfo: PackageInfo = {
-    ...JSON.parse(fs.readFileSync(rootPackageJsonPath, 'utf8')),
+  packageInfos[rootPackageJson.name] = {
+    ...rootPackageJson,
     packageJsonPath: rootPackageJsonPath,
   };
-
-  const packageInfos = {
-    ...getPackageInfos(workspaceRoot),
-    [rootPackageInfo.name]: rootPackageInfo,
-  };
-  const localPackages = Object.keys(packageInfos);
 
   for (const { packageJsonPath, ...packageJson } of Object.values(packageInfos)) {
     if (!packageJson.devDependencies) {
