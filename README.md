@@ -1,4 +1,4 @@
-# fix-deps
+# better-deps
 
 CLI for cleaning up issues with JavaScript dependencies in monorepos/workspaces.
 

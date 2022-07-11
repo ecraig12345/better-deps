@@ -1,5 +1,5 @@
 {
-  "name": "fix-deps",
+  "name": "better-deps",
   "version": "0.1.0",
   "description": "CLI for fixing issues with JavaScript dependencies",
   "bin": {
@@ -11,15 +11,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ecraig12345/fix-deps.git"
+    "url": "git+https://github.com/ecraig12345/better-deps.git"
   },
   "keywords": [],
   "author": "Elizabeth Craig <elcraig@microsoft.com>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/ecraig12345/fix-deps/issues"
+    "url": "https://github.com/ecraig12345/better-deps/issues"
   },
-  "homepage": "https://github.com/ecraig12345/fix-deps#readme",
+  "homepage": "https://github.com/ecraig12345/better-deps#readme",
   "files": [
     "lib"
   ],
