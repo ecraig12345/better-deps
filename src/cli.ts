@@ -13,8 +13,11 @@ const checkOption = new Option(
   'Check for issues without making any changes, and exit non-zero if issues are found',
 );
 
-function handleCheckResult(res: PackageInfo[]) {
-  if (res.length) {
+function handleResult(res: PackageInfo[], check: boolean) {
+  console.log();
+  if (!check) {
+    console.log(`✅ Updated ${res.length} packages\n`);
+  } else if (res.length) {
     console.error(`Found ${res.length} packages with new issues!`);
     const command = process.argv
       .slice(2)
@@ -22,9 +25,9 @@ function handleCheckResult(res: PackageInfo[]) {
       .join(' ');
     console.error(`Run this command to fix them:\n\n  npx better-deps ${command}\n`);
     process.exit(1);
+  } else {
+    console.log('✅ No issues found!\n');
   }
-
-  console.log('✅ No issues found!');
 }
 
 program
@@ -56,7 +59,7 @@ program
   )
   .action(({ check, ...options }) => {
     const res = hoistDevDeps({ ...options, write: !check });
-    check && handleCheckResult(res);
+    handleResult(res, !!check);
   });
 
 program
@@ -65,7 +68,7 @@ program
   .addOption(checkOption)
   .action(({ check }) => {
     const res = starLocalDevDeps(!check);
-    check && handleCheckResult(res);
+    handleResult(res, !!check);
   });
 
 program.parse();
