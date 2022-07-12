@@ -1,29 +1,31 @@
-import fs from 'fs';
-import os from 'os';
+import { PackageInfo } from 'workspace-tools';
+import { partialClonePackageInfo } from '../utils/partialClonePackageInfo';
 import { getWorkspaceInfo } from '../utils/getWorkspaceInfo';
+import { writePackageJsonUpdates } from '../utils/writePackageJsonUpdates';
 
-export async function starLocalDevDeps() {
-  const { packageInfos, localPackages, rootPackageJson, rootPackageJsonPath } = getWorkspaceInfo();
+export function starLocalDevDeps(write: boolean = true) {
+  const { packageInfos, localPackages } = getWorkspaceInfo();
 
-  packageInfos[rootPackageJson.name] = {
-    ...rootPackageJson,
-    packageJsonPath: rootPackageJsonPath,
-  };
-
-  for (const { packageJsonPath, ...packageJson } of Object.values(packageInfos)) {
-    if (!packageJson.devDependencies) {
-      continue;
-    }
-
-    let hasChanges = false;
-    for (const localDep of localPackages) {
-      if (packageJson.devDependencies[localDep]) {
-        packageJson.devDependencies[localDep] = '*';
-        hasChanges = true;
+  const updatedPackageInfos = Object.values(packageInfos)
+    .map((packageInfo) => {
+      if (!packageInfo.devDependencies) {
+        return;
       }
-    }
-    if (hasChanges) {
-      fs.writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2) + os.EOL);
-    }
+
+      let updatedInfo: PackageInfo | undefined;
+      for (const localDep of localPackages) {
+        if (packageInfo.devDependencies[localDep]) {
+          updatedInfo ??= partialClonePackageInfo(packageInfo, ['devDependencies']);
+          updatedInfo.devDependencies![localDep] = '*';
+        }
+      }
+      return updatedInfo;
+    })
+    .filter((p): p is PackageInfo => !!p);
+
+  if (write) {
+    writePackageJsonUpdates(updatedPackageInfos);
   }
+
+  return updatedPackageInfos;
 }

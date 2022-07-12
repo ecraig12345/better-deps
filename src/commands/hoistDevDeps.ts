@@ -1,7 +1,8 @@
-import fs from 'fs';
-import os from 'os';
+import { PackageInfo } from 'workspace-tools';
 import { getWorkspaceInfo } from '../utils/getWorkspaceInfo';
-import { PackageJson, Dependencies } from '../utils/types';
+import { partialClonePackageInfo } from '../utils/partialClonePackageInfo';
+import { Dependencies } from '../utils/types';
+import { writePackageJsonUpdates } from '../utils/writePackageJsonUpdates';
 
 export type HoistDevDepsOptions = {
   /** never hoist these deps */
@@ -22,16 +23,16 @@ type CollectedDeps = { [depName: string]: DepVersions };
 
 /**
  * Collect all dev deps from an individual package.
- * @param packageJson package.json for an individual package
+ * @param packageInfo package.json for an individual package
  * @param repoDevDeps accumulated dev deps of the repo
  * @param exclude dep names to exclude
  */
-function collectDevDeps(packageJson: PackageJson, repoDevDeps: CollectedDeps, exclude: string[]) {
-  for (const [depName, version] of Object.entries(packageJson.devDependencies || {})) {
+function collectDevDeps(packageInfo: PackageInfo, repoDevDeps: CollectedDeps, exclude: string[]) {
+  for (const [depName, version] of Object.entries(packageInfo.devDependencies || {})) {
     if (!exclude.includes(depName)) {
       repoDevDeps[depName] = repoDevDeps[depName] || {};
       repoDevDeps[depName][version] = repoDevDeps[depName][version] || [];
-      repoDevDeps[depName][version].push(packageJson.name);
+      repoDevDeps[depName][version].push(packageInfo.name);
     }
   }
 }
@@ -122,31 +123,33 @@ function chooseHoistVersion(options: {
 }
 
 /**
- * Update `packageJson` to delete any matching `hoistedDeps`
- * @param packageJson package.json for an individual package
+ * Get a copy of `packageInfo` with any matching `hoistedDeps` removed.
+ * @param packageInfo package.json for an individual package
  * @param hoistedDeps packages that have been hoisted and should be deleted here
+ * @returns new package info if there were any updates, or undefined if not
  */
-function updatePackageJson(packageJson: PackageJson, hoistedDeps: Dependencies) {
-  const devDeps = packageJson.devDependencies || {};
+function getUpdatedPackageInfo(packageInfo: PackageInfo, hoistedDeps: Dependencies) {
+  if (!packageInfo.devDependencies) {
+    return;
+  }
 
+  let updatedInfo: PackageInfo | undefined;
   for (const [name, version] of Object.entries(hoistedDeps)) {
-    if (devDeps[name] && devDeps[name] === version) {
-      delete devDeps[name];
+    if (packageInfo.devDependencies[name] === version) {
+      updatedInfo ??= partialClonePackageInfo(packageInfo, ['devDependencies']);
+      delete updatedInfo.devDependencies![name];
     }
   }
-
-  if (!Object.keys(devDeps).length) {
-    delete packageJson.devDependencies;
-  }
+  return updatedInfo;
 }
 
-export async function hoistDevDeps(options: HoistDevDepsOptions) {
+export function hoistDevDeps(options: HoistDevDepsOptions, write: boolean = true) {
   const { threshold = 0, always, exclude, only } = options;
 
   threshold &&
     console.log(`"Widely used" threshold: ${Math.round(threshold * 100)}% of packages\n`);
 
-  const { rootPackageJson, rootPackageJsonPath, packageInfos, localPackages } = getWorkspaceInfo();
+  const { rootPackageInfo, packageInfos, localPackages } = getWorkspaceInfo();
 
   /** requested exclude packages + local packages */
   const allNoHoist = [...(exclude || []), ...localPackages];
@@ -154,7 +157,7 @@ export async function hoistDevDeps(options: HoistDevDepsOptions) {
   const devDeps: CollectedDeps = {};
 
   // collect dev deps from the root package.json
-  collectDevDeps(rootPackageJson, devDeps, allNoHoist);
+  collectDevDeps(rootPackageInfo, devDeps, allNoHoist);
 
   // collect potentially-hoistable dev deps from all the individual packages
   for (const packageJson of Object.values(packageInfos)) {
@@ -167,7 +170,7 @@ export async function hoistDevDeps(options: HoistDevDepsOptions) {
     const hoistVersion = chooseHoistVersion({
       depName,
       versions,
-      rootDepVersion: rootPackageJson.devDependencies?.[depName],
+      rootDepVersion: rootPackageInfo.devDependencies?.[depName],
       localPackageCount: localPackages.length,
       always,
       only,
@@ -179,19 +182,22 @@ export async function hoistDevDeps(options: HoistDevDepsOptions) {
   }
 
   // update individual packages
-  for (const { packageJsonPath, ...packageJson } of Object.values(packageInfos)) {
-    if (packageJson.devDependencies) {
-      updatePackageJson(packageJson, hoistedDeps);
-      fs.writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2) + os.EOL);
-    }
-  }
+  const updatedPackageInfos = Object.values(packageInfos)
+    .map((packageInfo) => getUpdatedPackageInfo(packageInfo, hoistedDeps))
+    .filter((p): p is PackageInfo => !!p);
 
   // update root package.json (with dep names sorted)
-  const newRootDeps = { ...rootPackageJson.devDependencies, ...hoistedDeps };
-  const sortedDeps = Object.keys(newRootDeps).sort();
-  rootPackageJson.devDependencies = {};
-  for (const depName of sortedDeps) {
-    rootPackageJson.devDependencies[depName] = newRootDeps[depName];
+  const newRootDeps = { ...rootPackageInfo.devDependencies, ...hoistedDeps };
+  const sortedDeps = Object.entries(newRootDeps).sort(([aName], [bName]) =>
+    aName < bName ? -1 : 1,
+  );
+  const newRootPackageInfo = { ...rootPackageInfo };
+  newRootPackageInfo.devDependencies = Object.fromEntries(sortedDeps);
+  updatedPackageInfos.push(newRootPackageInfo);
+
+  if (write) {
+    writePackageJsonUpdates(updatedPackageInfos);
   }
-  fs.writeFileSync(rootPackageJsonPath, JSON.stringify(rootPackageJson, null, 2) + os.EOL);
+
+  return updatedPackageInfos;
 }

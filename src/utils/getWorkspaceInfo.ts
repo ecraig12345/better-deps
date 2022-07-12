@@ -1,7 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { getPackageInfos, getWorkspaceRoot } from 'workspace-tools';
-import { PackageJson } from './types';
+import { getPackageInfos, getWorkspaceRoot, PackageInfo } from 'workspace-tools';
 
 export function getWorkspaceInfo() {
   const workspaceRoot = getWorkspaceRoot(process.cwd());
@@ -10,14 +9,16 @@ export function getWorkspaceInfo() {
   }
 
   const rootPackageJsonPath = path.join(workspaceRoot, 'package.json');
-  const rootPackageJson: PackageJson = JSON.parse(fs.readFileSync(rootPackageJsonPath, 'utf8'));
+  const rootPackageInfo: PackageInfo = {
+    packageJsonPath: rootPackageJsonPath,
+    ...JSON.parse(fs.readFileSync(rootPackageJsonPath, 'utf8')),
+  };
 
   const packageInfos = getPackageInfos(workspaceRoot);
 
   return {
     workspaceRoot,
-    rootPackageJsonPath,
-    rootPackageJson,
+    rootPackageInfo,
     packageInfos,
     localPackages: Object.keys(packageInfos),
   };

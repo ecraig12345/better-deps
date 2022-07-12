@@ -33,14 +33,15 @@ program
     '--always <deps...>',
     'Always hoist these devDependencies (only relevant with --threshold)',
   )
-  .action(hoistDevDeps);
+  .action((options) => {
+    hoistDevDeps(options);
+  });
 
 program
   .command('star-local-dev-deps')
   .description('Change version specs of devDependencies on local packages to "*"')
-  .action(starLocalDevDeps);
+  .action(() => {
+    starLocalDevDeps();
+  });
 
-program.parseAsync().catch((err: unknown) => {
-  console.error(err);
-  process.exit(1);
-});
+program.parse();
