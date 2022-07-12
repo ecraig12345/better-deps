@@ -1,9 +1,9 @@
 {
   "name": "better-deps",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "CLI for cleaning up issues with JavaScript dependencies",
   "bin": {
-    "better-deps": "./lib/cli.js"
+    "better-deps": "./bin/better-deps.js"
   },
   "engines": {
     "node": ">=14"
