@@ -1,6 +1,7 @@
 import { PackageInfo } from 'workspace-tools';
 import { getWorkspaceInfo } from '../utils/getWorkspaceInfo';
 import { partialClonePackageInfo } from '../utils/partialClonePackageInfo';
+import { sortObject } from '../utils/sortObject';
 import { Dependencies } from '../utils/types';
 import { writePackageJsonUpdates } from '../utils/writePackageJsonUpdates';
 
@@ -184,7 +185,8 @@ export function hoistDevDeps(options: HoistDevDepsOptions) {
 
   // generate the hoisting list (and validate that the versions are consistent)
   const hoistedDeps: Dependencies = {};
-  for (const [depName, versions] of Object.entries(devDeps)) {
+  // iterate over deps in sorted order for nicer logging
+  for (const [depName, versions] of Object.entries(sortObject(devDeps))) {
     const hoistVersion = chooseHoistVersion({
       depName,
       versions,
@@ -207,11 +209,8 @@ export function hoistDevDeps(options: HoistDevDepsOptions) {
   // update root package.json (with dep names sorted)
   if (updatedPackageInfos.length) {
     const newRootDeps = { ...rootPackageInfo.devDependencies, ...hoistedDeps };
-    const sortedDeps = Object.entries(newRootDeps).sort(([aName], [bName]) =>
-      aName < bName ? -1 : 1,
-    );
     const newRootPackageInfo = { ...rootPackageInfo };
-    newRootPackageInfo.devDependencies = Object.fromEntries(sortedDeps);
+    newRootPackageInfo.devDependencies = sortObject(newRootDeps);
     updatedPackageInfos.push(newRootPackageInfo);
   }
 

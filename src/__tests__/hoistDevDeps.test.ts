@@ -167,6 +167,21 @@ describe('hoistDevDeps', () => {
       expect(getConsoleLogs()).toEqual('');
     });
 
+    it('logs in sorted order', () => {
+      const deps = ['e', 'c', 'a', 'b', 'd'];
+      const fixture = getFakeWorkspace({
+        packages: {
+          pkg1: { devDependencies: Object.fromEntries(deps.map((dep) => [dep, '1.0.0'])) },
+        },
+      });
+      mockWorkspaceAndLogs(fixture);
+
+      hoistDevDeps({ write: false });
+      const sortedDeps = [...deps].sort();
+      const expectedLogs = sortedDeps.map((dep) => `Hoisting ${dep}@1.0.0`).join('\n');
+      expect(getConsoleLogs()).toEqual(expectedLogs);
+    });
+
     it('chooses most popular version if mismatched and no root version present', () => {
       const fixture = getFakeWorkspace(basicFixtures.mismatched());
       mockWorkspaceAndLogs(fixture);
@@ -393,9 +408,9 @@ describe('hoistDevDeps', () => {
       expect(getConsoleLogs()).toMatchInlineSnapshot(`
         "\\"Widely used\\" threshold: 50% of packages
 
+        NOT hoisting glob (used by 25%)
         Hoisting jest@^28.0.0 (used by 50%)
         Hoisting rimraf@^3.0.0 (used by 50%)
-        NOT hoisting glob (used by 25%)
         NOT hoisting typescript (used by 25%)"
       `);
     });
