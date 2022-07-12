@@ -1,15 +1,18 @@
 import fs from 'fs';
 import os from 'os';
-import { getWorkspaceInfo } from './getWorkspaceInfo';
-import { PackageJson, Dependencies } from './types';
+import { getWorkspaceInfo } from '../utils/getWorkspaceInfo';
+import { PackageJson, Dependencies } from '../utils/types';
 
-const widelyUsedThreshold = 0.5;
-console.log(`"Widely used" threshold: ${Math.round(widelyUsedThreshold * 100)}% of packages\n`);
-
-/** always hoist these dev deps */
-const defaultForceHoist: string[] = [];
-/** never hoist these dev deps */
-const defaultNoHoist: string[] = [];
+export type HoistDevDepsOptions = {
+  /** never hoist these deps */
+  exclude?: string[];
+  /** only hoist these deps */
+  only?: string[];
+  /** popularity threshold for hoisting (0 to 1) */
+  threshold?: number;
+  /** always hoist these deps regardless of popularity (only relevant with `threshold`) */
+  always?: string[];
+};
 
 /** map from version spec to list of packages using it */
 type DepVersions = { [version: string]: string[] };
@@ -46,50 +49,75 @@ function chooseHoistVersion(options: {
   rootDepVersion: string | undefined;
   /** number of packages defined in this monorepo */
   localPackageCount: number;
-  /** list of packages that should be hoisted regardless of popularity */
-  forceHoist: string[];
+  /** deps that should be hoisted regardless of popularity */
+  always?: string[];
+  /** only hoist these deps */
+  only?: string[];
+  /** popularity threshold for hoisting (0 to 1) */
+  threshold?: number;
 }): string | undefined {
-  const { depName, versions, rootDepVersion, localPackageCount, forceHoist } = options;
+  const { depName, versions, rootDepVersion, localPackageCount, always, only, threshold } = options;
+
+  if (only && !only.includes(depName)) {
+    return;
+  }
+
   const versionSpecs = Object.keys(versions);
-  if (versionSpecs.length > 1) {
+  const hasMismatch = versionSpecs.length > 1;
+  if (hasMismatch) {
     console.warn(`Found multiple versions of ${depName}: ${versionSpecs.join(', ')}`);
     for (const [version, packages] of Object.entries(versions)) {
       console.warn(`  ${version} in ${packages.join(', ')}`);
     }
   }
 
+  // If a dep is already specified at the root, always use that version.
+  // Otherwise, choose the most popular version if there's more than one.
   const popularVersion = versionSpecs.reduce((popular, ver) =>
     versions[ver].length > versions[popular].length ? ver : popular,
   );
 
   let hoistVersion = '';
   let reason = '';
-  const mostPopularReason = versionSpecs.length > 1 ? ', choosing the most popular version' : '';
+
   if (rootDepVersion) {
-    // if a dep version specified at the root is also used elsewhere, always hoist it
-    // ("hoisting" a dep used only at the root would do nothing, but exclude it to reduce log spam)
-    if (versions[rootDepVersion].length > 1) {
+    if (versions[rootDepVersion].length === 1) {
+      // if a dep version specified at the root is also used elsewhere, always hoist it
       hoistVersion = rootDepVersion;
-      reason = 'included in root package.json';
+      if (only) {
+        reason = hasMismatch ? 'choosing root package.json version' : '';
+      } else {
+        reason = 'included in root package.json';
+      }
     } else {
+      // else, no-op ("hoisting" a dep used only at the root would do nothing, but exclude it to reduce log spam)
       reason = 'already hoisted';
     }
-  } else if (forceHoist.includes(depName)) {
+  } else if (always?.includes(depName)) {
+    // dep is requested to always hoist
     hoistVersion = popularVersion;
-    reason = 'included in forceHoist' + mostPopularReason;
-  } else if (versions[popularVersion].length / localPackageCount > widelyUsedThreshold) {
+    reason = 'as requested';
+  } else if (!threshold) {
+    // no threshold specified => hoist all dev deps
     hoistVersion = popularVersion;
-    reason = `widely used${mostPopularReason}`;
-  } else {
-    reason = 'not widely used';
+  } else if (versions[popularVersion].length / localPackageCount >= threshold) {
+    // dep is popular enough
+    hoistVersion = popularVersion;
+    reason = 'widely used';
   }
 
   if (hoistVersion) {
-    console.log(`Hoisting ${depName}@${hoistVersion} (${reason})`);
+    if (hasMismatch && hoistVersion === popularVersion) {
+      reason += reason ? ', ' : '';
+      reason += 'choosing most popular version';
+    }
+    console.log(`Hoisting ${depName}@${hoistVersion}${reason ? ` (${reason})` : ''}`);
     return hoistVersion;
   }
+
+  // skip logging "already hoisted" deps to reduce log spam
   if (reason !== 'already hoisted') {
-    console.log(`NOT hoisting ${depName} (${reason})`);
+    console.log(`NOT hoisting ${depName} (not widely used)`);
   }
 }
 
@@ -112,15 +140,16 @@ function updatePackageJson(packageJson: PackageJson, hoistedDeps: Dependencies) 
   }
 }
 
-/**
- * @param forceHoist always hoist these packages
- * @param noHoist never hoist these packages
- */
-async function hoistDeps(forceHoist: string[], noHoist: string[]) {
+export async function hoistDevDeps(options: HoistDevDepsOptions) {
+  const { threshold = 0, always, exclude, only } = options;
+
+  threshold &&
+    console.log(`"Widely used" threshold: ${Math.round(threshold * 100)}% of packages\n`);
+
   const { rootPackageJson, rootPackageJsonPath, packageInfos, localPackages } = getWorkspaceInfo();
 
-  /** requested noHoist packages + local packages */
-  const allNoHoist = [...noHoist, ...localPackages];
+  /** requested exclude packages + local packages */
+  const allNoHoist = [...(exclude || []), ...localPackages];
 
   const devDeps: CollectedDeps = {};
 
@@ -140,7 +169,9 @@ async function hoistDeps(forceHoist: string[], noHoist: string[]) {
       versions,
       rootDepVersion: rootPackageJson.devDependencies?.[depName],
       localPackageCount: localPackages.length,
-      forceHoist,
+      always,
+      only,
+      threshold,
     });
     if (hoistVersion) {
       hoistedDeps[depName] = hoistVersion;
@@ -164,8 +195,3 @@ async function hoistDeps(forceHoist: string[], noHoist: string[]) {
   }
   fs.writeFileSync(rootPackageJsonPath, JSON.stringify(rootPackageJson, null, 2) + os.EOL);
 }
-
-hoistDeps(defaultForceHoist, defaultNoHoist).catch((err) => {
-  console.error(err);
-  process.exit(1);
-});

@@ -1,8 +1,8 @@
 import fs from 'fs';
 import os from 'os';
-import { getWorkspaceInfo } from './getWorkspaceInfo';
+import { getWorkspaceInfo } from '../utils/getWorkspaceInfo';
 
-async function starLocalDevDeps() {
+export async function starLocalDevDeps() {
   const { packageInfos, localPackages, rootPackageJson, rootPackageJsonPath } = getWorkspaceInfo();
 
   packageInfos[rootPackageJson.name] = {
@@ -27,8 +27,3 @@ async function starLocalDevDeps() {
     }
   }
 }
-
-starLocalDevDeps().catch((err) => {
-  console.error(err);
-  process.exit(1);
-});
