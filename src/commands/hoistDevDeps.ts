@@ -7,12 +7,14 @@ import { writePackageJsonUpdates } from '../utils/writePackageJsonUpdates';
 export type HoistDevDepsOptions = {
   /** never hoist these deps */
   exclude?: string[];
-  /** only hoist these deps */
+  /** only hoist these deps (not compatible with other options) */
   only?: string[];
   /** popularity threshold for hoisting (0 to 1) */
   threshold?: number;
   /** always hoist these deps regardless of popularity (only relevant with `threshold`) */
   always?: string[];
+  /** whether to write changes (default true) */
+  write?: boolean;
 };
 
 /** map from version spec to list of packages using it */
@@ -82,7 +84,7 @@ function chooseHoistVersion(options: {
   let reason = '';
 
   if (rootDepVersion) {
-    if (versions[rootDepVersion].length === 1) {
+    if (versions[rootDepVersion].length > 1) {
       // if a dep version specified at the root is also used elsewhere, always hoist it
       hoistVersion = rootDepVersion;
       if (only) {
@@ -101,14 +103,17 @@ function chooseHoistVersion(options: {
   } else if (!threshold) {
     // no threshold specified => hoist all dev deps
     hoistVersion = popularVersion;
-  } else if (versions[popularVersion].length / localPackageCount >= threshold) {
-    // dep is popular enough
-    hoistVersion = popularVersion;
-    reason = 'widely used';
+  } else {
+    const usedAmount = versions[popularVersion].length / localPackageCount;
+    reason = `used by ${Math.round(usedAmount * 100)}%`;
+    if (usedAmount >= threshold) {
+      // dep is popular enough
+      hoistVersion = popularVersion;
+    }
   }
 
   if (hoistVersion) {
-    if (hasMismatch && hoistVersion === popularVersion) {
+    if (hasMismatch && hoistVersion !== rootDepVersion) {
       reason += reason ? ', ' : '';
       reason += 'choosing most popular version';
     }
@@ -118,7 +123,7 @@ function chooseHoistVersion(options: {
 
   // skip logging "already hoisted" deps to reduce log spam
   if (reason !== 'already hoisted') {
-    console.log(`NOT hoisting ${depName} (not widely used)`);
+    console.log(`NOT hoisting ${depName} (${reason})`);
   }
 }
 
@@ -143,8 +148,21 @@ function getUpdatedPackageInfo(packageInfo: PackageInfo, hoistedDeps: Dependenci
   return updatedInfo;
 }
 
-export function hoistDevDeps(options: HoistDevDepsOptions, write: boolean = true) {
-  const { threshold = 0, always, exclude, only } = options;
+export function hoistDevDeps(options: HoistDevDepsOptions) {
+  const { threshold = 0, always, exclude, only, write = true } = options;
+
+  if (only && (threshold || always || exclude)) {
+    throw new Error('`only` and other options are not compatible');
+  }
+  if (always && !threshold) {
+    throw new Error('`always` is only relevant with `threshold`');
+  }
+  if (threshold && (threshold < 0 || threshold > 1)) {
+    throw new Error('`threshold` must be between 0 and 1 inclusive');
+  }
+  if (exclude && always && exclude.some((dep) => always.includes(dep))) {
+    throw new Error('a package cannot be listed in both `exclude` and `always`');
+  }
 
   threshold &&
     console.log(`"Widely used" threshold: ${Math.round(threshold * 100)}% of packages\n`);
@@ -187,13 +205,15 @@ export function hoistDevDeps(options: HoistDevDepsOptions, write: boolean = true
     .filter((p): p is PackageInfo => !!p);
 
   // update root package.json (with dep names sorted)
-  const newRootDeps = { ...rootPackageInfo.devDependencies, ...hoistedDeps };
-  const sortedDeps = Object.entries(newRootDeps).sort(([aName], [bName]) =>
-    aName < bName ? -1 : 1,
-  );
-  const newRootPackageInfo = { ...rootPackageInfo };
-  newRootPackageInfo.devDependencies = Object.fromEntries(sortedDeps);
-  updatedPackageInfos.push(newRootPackageInfo);
+  if (updatedPackageInfos.length) {
+    const newRootDeps = { ...rootPackageInfo.devDependencies, ...hoistedDeps };
+    const sortedDeps = Object.entries(newRootDeps).sort(([aName], [bName]) =>
+      aName < bName ? -1 : 1,
+    );
+    const newRootPackageInfo = { ...rootPackageInfo };
+    newRootPackageInfo.devDependencies = Object.fromEntries(sortedDeps);
+    updatedPackageInfos.push(newRootPackageInfo);
+  }
 
   if (write) {
     writePackageJsonUpdates(updatedPackageInfos);

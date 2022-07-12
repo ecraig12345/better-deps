@@ -38,8 +38,8 @@ better-deps hoist-dev-deps -t 0.5
 # As above, but always hoist typescript and react deps
 better-deps hoist-dev-deps -t 0.5 --always typescript react react-dom @types/react @types/react-dom
 
-#
-better-deps hoist-dev-deps
+# Only hoist @types/react and @types/react-dom
+better-deps hoist-dev-deps --only @types/react @types/react-dom
 ```
 
 ### `star-local-dev-deps`

@@ -1,0 +1,26 @@
+{
+  // Use IntelliSense to learn about possible Node.js debug attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Debug current open test",
+      "program": "${workspaceRoot}/node_modules/.bin/jest",
+      "cwd": "${workspaceFolder}",
+      "runtimeArgs": ["--nolazy", "--inspect"],
+      "args": [
+        "--runInBand",
+        "--watch",
+        "--config",
+        "${workspaceRoot}/jest.config.js",
+        "${fileBasenameNoExtension}"
+      ],
+      "sourceMaps": true,
+      "outputCapture": "std",
+      "console": "integratedTerminal"
+    }
+  ]
+}

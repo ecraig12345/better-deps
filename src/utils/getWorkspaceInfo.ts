@@ -1,8 +1,9 @@
 import fs from 'fs';
 import path from 'path';
 import { getPackageInfos, getWorkspaceRoot, PackageInfo } from 'workspace-tools';
+import { WorkspacePackagesInfo } from './types';
 
-export function getWorkspaceInfo() {
+export function getWorkspaceInfo(): WorkspacePackagesInfo {
   const workspaceRoot = getWorkspaceRoot(process.cwd());
   if (!workspaceRoot) {
     throw new Error('Directory does not appear to be within a workspace: ' + process.cwd());
