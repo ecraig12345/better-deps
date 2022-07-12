@@ -27,6 +27,8 @@ jobs:
 
       - run: yarn
 
+      - run: yarn format:check
+
       - run: yarn build
 
       - run: yarn test
