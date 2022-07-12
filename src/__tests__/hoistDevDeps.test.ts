@@ -44,13 +44,15 @@ describe('hoistDevDeps', () => {
   }
 
   afterEach(() => {
+    // restore this in case a test failed and it never got called
     getWorkspaceInfoMock?.mockRestore();
     getWorkspaceInfoMock = undefined;
+
     consoleLogMock?.mockRestore();
     consoleLogMock = undefined;
     consoleWarnMock?.mockRestore();
     consoleWarnMock = undefined;
-    logs = [];
+    logs = undefined;
   });
 
   describe('basic', () => {

@@ -1,9 +1,25 @@
-import { jest, describe, it, expect } from '@jest/globals';
+import { jest, describe, it, expect, afterEach } from '@jest/globals';
+import { SpyInstance } from 'jest-mock';
 import { starLocalDevDeps } from '../commands/starLocalDevDeps';
 import * as getWorkspaceInfoModule from '../utils/getWorkspaceInfo';
+import { WorkspacePackagesInfo } from '../utils/types';
 import { getFakeWorkspace } from './fixtures/getFakeWorkspace';
 
 describe('starLocalDevDeps', () => {
+  let getWorkspaceInfoMock: SpyInstance | undefined;
+
+  function mockWorkspaceInfo(fixture: WorkspacePackagesInfo) {
+    getWorkspaceInfoMock = jest
+      .spyOn(getWorkspaceInfoModule, 'getWorkspaceInfo')
+      .mockImplementationOnce(() => fixture);
+  }
+
+  afterEach(() => {
+    // restore this in case a test failed and it never got called
+    getWorkspaceInfoMock?.mockRestore();
+    getWorkspaceInfoMock = undefined;
+  });
+
   it('works in basic case', () => {
     const fixture = getFakeWorkspace({
       packages: {
@@ -13,7 +29,7 @@ describe('starLocalDevDeps', () => {
         scripts: {},
       },
     });
-    jest.spyOn(getWorkspaceInfoModule, 'getWorkspaceInfo').mockImplementationOnce(() => fixture);
+    mockWorkspaceInfo(fixture);
 
     const res = starLocalDevDeps(false);
     expect(res).toEqual([
@@ -31,7 +47,7 @@ describe('starLocalDevDeps', () => {
         scripts: {},
       },
     });
-    jest.spyOn(getWorkspaceInfoModule, 'getWorkspaceInfo').mockImplementationOnce(() => fixture);
+    mockWorkspaceInfo(fixture);
 
     const res = starLocalDevDeps(false);
     expect(res).toEqual([
@@ -47,10 +63,26 @@ describe('starLocalDevDeps', () => {
         bar: {},
       },
     });
-    jest.spyOn(getWorkspaceInfoModule, 'getWorkspaceInfo').mockImplementationOnce(() => fixture);
+    mockWorkspaceInfo(fixture);
 
     const res = starLocalDevDeps(false);
     expect(res).toEqual([]);
+  });
+
+  it("doesn't update packages already using *", () => {
+    // this is mainly important for --check mode
+    const fixture = getFakeWorkspace({
+      packages: {
+        foo: { devDependencies: { scripts: '*' } },
+        bar: { devDependencies: { scripts: '^1.0.0' } },
+        scripts: {},
+      },
+    });
+    mockWorkspaceInfo(fixture);
+
+    const res = starLocalDevDeps(false);
+    // foo is NOT modified because it already had scripts as *
+    expect(res).toEqual([{ ...fixture.packageInfos.bar, devDependencies: { scripts: '*' } }]);
   });
 
   // TBD whether this is desirable
@@ -61,7 +93,7 @@ describe('starLocalDevDeps', () => {
         foo: {},
       },
     });
-    jest.spyOn(getWorkspaceInfoModule, 'getWorkspaceInfo').mockImplementationOnce(() => fixture);
+    mockWorkspaceInfo(fixture);
 
     const res = starLocalDevDeps(false);
     expect(res).toEqual([]);

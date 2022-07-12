@@ -13,14 +13,18 @@ const checkOption = new Option(
   'Check for issues without making any changes, and exit non-zero if issues are found',
 );
 
-function logError(res: PackageInfo[]) {
-  console.error(`Found ${res.length} packages with new issues!`);
-  const command = process.argv
-    .slice(2)
-    .filter((arg) => arg !== '--check')
-    .join(' ');
-  console.error(`Please re-run this command locally to fix them:\n  ${command}`);
-  process.exit(1);
+function handleCheckResult(res: PackageInfo[]) {
+  if (res.length) {
+    console.error(`Found ${res.length} packages with new issues!`);
+    const command = process.argv
+      .slice(2)
+      .filter((arg) => arg !== '--check')
+      .join(' ');
+    console.error(`Run this command to fix them:\n\n  npx better-deps ${command}\n`);
+    process.exit(1);
+  }
+
+  console.log('✅ No issues found!');
 }
 
 program
@@ -52,20 +56,16 @@ program
   )
   .action(({ check, ...options }) => {
     const res = hoistDevDeps({ ...options, write: !check });
-    if (check && res.length) {
-      logError(res);
-    }
+    check && handleCheckResult(res);
   });
 
 program
   .command('star-local-dev-deps')
   .description('Change version specs of devDependencies on local packages to "*"')
   .addOption(checkOption)
-  .action((options) => {
-    const res = starLocalDevDeps();
-    if (options.check && res.length) {
-      logError(res);
-    }
+  .action(({ check }) => {
+    const res = starLocalDevDeps(!check);
+    check && handleCheckResult(res);
   });
 
 program.parse();

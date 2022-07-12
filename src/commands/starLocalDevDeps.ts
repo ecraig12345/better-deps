@@ -14,7 +14,10 @@ export function starLocalDevDeps(write: boolean = true) {
 
       let updatedInfo: PackageInfo | undefined;
       for (const localDep of localPackages) {
-        if (packageInfo.devDependencies[localDep]) {
+        if (
+          packageInfo.devDependencies[localDep] &&
+          packageInfo.devDependencies[localDep] !== '*'
+        ) {
           updatedInfo ??= partialClonePackageInfo(packageInfo, ['devDependencies']);
           updatedInfo.devDependencies![localDep] = '*';
         }
