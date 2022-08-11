@@ -12,6 +12,7 @@
     "build": "tsc",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
+    "release": "changeset publish",
     "test": "jest"
   },
   "repository": {
@@ -38,6 +39,7 @@
     "typescript": "4.7.4"
   },
   "dependencies": {
+    "@changesets/cli": "^2.24.2",
     "commander": "^9.3.0",
     "workspace-tools": "^0.26.0"
   }

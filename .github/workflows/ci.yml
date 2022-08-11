@@ -26,3 +26,14 @@ jobs:
       - run: yarn build
 
       - run: yarn test
+
+      - name: (main) Create release PR or publish to npm
+        if: ${{ github.ref == 'refs/heads/main' }}
+        uses: changesets/action@v1
+        with:
+          publish: yarn release
+          commit: Bump package version
+          title: Bump package version
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
