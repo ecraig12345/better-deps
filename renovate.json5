@@ -1,0 +1,9 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "github>ecraig12345/renovate-config:libraryRecommended",
+    "github>ecraig12345/renovate-config:keepFresh"
+  ],
+  "labels": ["renovate"],
+  "reviewers": ["ecraig12345"]
+}
