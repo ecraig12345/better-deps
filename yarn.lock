@@ -318,7 +318,7 @@
     jest-util "^28.1.3"
     slash "^3.0.0"
 
-"@jest/core@^28.1.2", "@jest/core@^28.1.3":
+"@jest/core@^28.1.3":
   version "28.1.3"
   resolved "https://registry.yarnpkg.com/@jest/core/-/core-28.1.3.tgz#0ebf2bd39840f1233cd5f2d1e6fc8b71bd5a1ac7"
   integrity sha512-CIKBrlaKOzA7YG19BEqCw3SLIsEwjZkeJzf5bdooVnW4bH5cktqe3JX+G2YV1aK5vP8N9na1IGWFzYaTp6k6NA==
@@ -353,7 +353,7 @@
     slash "^3.0.0"
     strip-ansi "^6.0.0"
 
-"@jest/environment@^28.1.2", "@jest/environment@^28.1.3":
+"@jest/environment@^28.1.3":
   version "28.1.3"
   resolved "https://registry.yarnpkg.com/@jest/environment/-/environment-28.1.3.tgz#abed43a6b040a4c24fdcb69eab1f97589b2d663e"
   integrity sha512-1bf40cMFTEkKyEf585R9Iz1WayDjHoHqvts0XFYEqyKM3cFWDpeMoqKKTAF9LSYQModPUlh8FKptoM2YcMWAXA==
@@ -370,7 +370,7 @@
   dependencies:
     jest-get-type "^28.0.2"
 
-"@jest/expect@^28.1.2", "@jest/expect@^28.1.3":
+"@jest/expect@^28.1.3":
   version "28.1.3"
   resolved "https://registry.yarnpkg.com/@jest/expect/-/expect-28.1.3.tgz#9ac57e1d4491baca550f6bdbd232487177ad6a72"
   integrity sha512-lzc8CpUbSoE4dqT0U+g1qODQjBRHPpCPXissXD4mS9+sWQdmmpeJ9zSH1rS1HEkrsMN0fb7nKrJ9giAR1d3wBw==
@@ -390,16 +390,7 @@
     jest-mock "^28.1.3"
     jest-util "^28.1.3"
 
-"@jest/globals@28.1.2":
-  version "28.1.2"
-  resolved "https://registry.yarnpkg.com/@jest/globals/-/globals-28.1.2.tgz#92fab296e337c7309c25e4202fb724f62249d83f"
-  integrity sha512-cz0lkJVDOtDaYhvT3Fv2U1B6FtBnV+OpEyJCzTHM1fdoTsU4QNLAt/H4RkiwEUU+dL4g/MFsoTuHeT2pvbo4Hg==
-  dependencies:
-    "@jest/environment" "^28.1.2"
-    "@jest/expect" "^28.1.2"
-    "@jest/types" "^28.1.1"
-
-"@jest/globals@^28.1.3":
+"@jest/globals@28.1.3", "@jest/globals@^28.1.3":
   version "28.1.3"
   resolved "https://registry.yarnpkg.com/@jest/globals/-/globals-28.1.3.tgz#a601d78ddc5fdef542728309894895b4a42dc333"
   integrity sha512-XFU4P4phyryCXu1pbcqMO0GSQcYe1IsalYCDzRNyhetyeyxMcIxa11qPNDpVNLeretItNqEmYYQn1UYz/5x1NA==
@@ -496,7 +487,7 @@
     slash "^3.0.0"
     write-file-atomic "^4.0.1"
 
-"@jest/types@^28.1.1", "@jest/types@^28.1.3":
+"@jest/types@^28.1.3":
   version "28.1.3"
   resolved "https://registry.yarnpkg.com/@jest/types/-/types-28.1.3.tgz#b05de80996ff12512bc5ceb1d208285a7d11748b"
   integrity sha512-RyjiyMUZrKz/c+zlMFO1pm70DcIlST8AeWTkoUdZevew44wcNZQHsEVOiCVtgVnlFFD82FPaXycys58cf2muVQ==
@@ -1449,7 +1440,7 @@ jest-circus@^28.1.3:
     slash "^3.0.0"
     stack-utils "^2.0.3"
 
-jest-cli@^28.1.2:
+jest-cli@^28.1.3:
   version "28.1.3"
   resolved "https://registry.yarnpkg.com/jest-cli/-/jest-cli-28.1.3.tgz#558b33c577d06de55087b8448d373b9f654e46b2"
   integrity sha512-roY3kvrv57Azn1yPgdTebPAXvdR2xfezaKKYzVxZ6It/5NCxzJym6tUI5P1zkdWhfUYkxEI9uZWcQdaFLo8mJQ==
@@ -1592,15 +1583,7 @@ jest-message-util@^28.1.3:
     slash "^3.0.0"
     stack-utils "^2.0.3"
 
-jest-mock@28.1.1:
-  version "28.1.1"
-  resolved "https://registry.yarnpkg.com/jest-mock/-/jest-mock-28.1.1.tgz#37903d269427fa1ef5b2447be874e1c62a39a371"
-  integrity sha512-bDCb0FjfsmKweAvE09dZT59IMkzgN0fYBH6t5S45NoJfd2DHkS3ySG2K+hucortryhO3fVuXdlxWcbtIuV/Skw==
-  dependencies:
-    "@jest/types" "^28.1.1"
-    "@types/node" "*"
-
-jest-mock@^28.1.3:
+jest-mock@28.1.3, jest-mock@^28.1.3:
   version "28.1.3"
   resolved "https://registry.yarnpkg.com/jest-mock/-/jest-mock-28.1.3.tgz#d4e9b1fc838bea595c77ab73672ebf513ab249da"
   integrity sha512-o3J2jr6dMMWYVH4Lh/NKmDXdosrsJgi4AviS8oXLujcjpCMBb1FMsblDnOXKZKfSiHLxYub1eS0IHuRXsio9eA==
@@ -1772,15 +1755,15 @@ jest-worker@^28.1.3:
     merge-stream "^2.0.0"
     supports-color "^8.0.0"
 
-jest@28.1.2:
-  version "28.1.2"
-  resolved "https://registry.yarnpkg.com/jest/-/jest-28.1.2.tgz#451ff24081ce31ca00b07b60c61add13aa96f8eb"
-  integrity sha512-Tuf05DwLeCh2cfWCQbcz9UxldoDyiR1E9Igaei5khjonKncYdc6LDfynKCEWozK0oLE3GD+xKAo2u8x/0s6GOg==
+jest@28.1.3:
+  version "28.1.3"
+  resolved "https://registry.yarnpkg.com/jest/-/jest-28.1.3.tgz#e9c6a7eecdebe3548ca2b18894a50f45b36dfc6b"
+  integrity sha512-N4GT5on8UkZgH0O5LUavMRV1EDEhNTL0KEfRmDIeZHSV7p2XgLoY9t9VDUgL6o+yfdgYHVxuz81G8oB9VG5uyA==
   dependencies:
-    "@jest/core" "^28.1.2"
-    "@jest/types" "^28.1.1"
+    "@jest/core" "^28.1.3"
+    "@jest/types" "^28.1.3"
     import-local "^3.0.2"
-    jest-cli "^28.1.2"
+    jest-cli "^28.1.3"
 
 jju@^1.4.0:
   version "1.4.0"
