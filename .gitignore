@@ -133,3 +133,5 @@ package-lock.json
 
 # tsdoc
 tsdoc-metadata.json
+
+NOTES.md
