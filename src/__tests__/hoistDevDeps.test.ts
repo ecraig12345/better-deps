@@ -406,7 +406,7 @@ describe('hoistDevDeps', () => {
         },
       ]);
       expect(getConsoleLogs()).toMatchInlineSnapshot(`
-        "\\"Widely used\\" threshold: 50% of packages
+        ""Widely used" threshold: 50% of packages
 
         NOT hoisting glob (used by 25%)
         Hoisting jest@^28.0.0 (used by 50%)
@@ -431,7 +431,7 @@ describe('hoistDevDeps', () => {
         'fake-root': { jest: '^28.0.0' },
       });
       expect(getConsoleLogs()).toMatchInlineSnapshot(`
-        "\\"Widely used\\" threshold: 50% of packages
+        ""Widely used" threshold: 50% of packages
 
         Hoisting jest@^28.0.0 (as requested)"
       `);
@@ -452,7 +452,7 @@ describe('hoistDevDeps', () => {
         'fake-root': { jest: '^28.0.0', rimraf: '^3.0.0', glob: '^8.0.0' },
       });
       expect(getConsoleLogs()).toMatchInlineSnapshot(`
-        "\\"Widely used\\" threshold: 50% of packages
+        ""Widely used" threshold: 50% of packages
 
         Hoisting glob@^8.0.0 (included in root package.json)
         Hoisting jest@^28.0.0 (used by 50%)
@@ -472,7 +472,7 @@ describe('hoistDevDeps', () => {
         pkg2: {},
       });
       expect(getConsoleLogs()).toMatchInlineSnapshot(`
-        "\\"Widely used\\" threshold: 50% of packages
+        ""Widely used" threshold: 50% of packages
 
         Found multiple versions of jest: ^28.0.0, ^27.0.0
           ^28.0.0 in pkg1, pkg2
@@ -489,7 +489,7 @@ describe('hoistDevDeps', () => {
       const res = hoistDevDeps({ threshold: 0.5, write: false });
       expect(res).toEqual([]);
       expect(getConsoleLogs()).toMatchInlineSnapshot(`
-        "\\"Widely used\\" threshold: 50% of packages
+        ""Widely used" threshold: 50% of packages
 
         Found multiple versions of jest: ^28.0.0, ^27.0.0
           ^28.0.0 in pkg1, pkg2
@@ -509,7 +509,7 @@ describe('hoistDevDeps', () => {
         pkg2: {},
       });
       expect(getConsoleLogs()).toMatchInlineSnapshot(`
-        "\\"Widely used\\" threshold: 50% of packages
+        ""Widely used" threshold: 50% of packages
 
         Found multiple versions of jest: ^28.0.0, ^27.0.0
           ^28.0.0 in pkg1, pkg2
@@ -528,7 +528,7 @@ describe('hoistDevDeps', () => {
         pkg3: {},
       });
       expect(getConsoleLogs()).toMatchInlineSnapshot(`
-        "\\"Widely used\\" threshold: 50% of packages
+        ""Widely used" threshold: 50% of packages
 
         Found multiple versions of jest: ^27.0.0, ^28.0.0
           ^27.0.0 in fake-root, pkg3
