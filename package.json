@@ -6,7 +6,7 @@
     "better-deps": "./bin/better-deps.js"
   },
   "engines": {
-    "node": ">=14"
+    "node": ">=v14.20.0"
   },
   "scripts": {
     "build": "tsc",
