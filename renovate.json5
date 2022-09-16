@@ -4,8 +4,12 @@
     "github>microsoft/m365-renovate-config:libraryRecommended",
     "github>microsoft/m365-renovate-config:automergeTypes",
     "github>microsoft/m365-renovate-config:groupMore",
+    "github>microsoft/m365-renovate-config:groupTypes",
     "github>microsoft/m365-renovate-config:keepFresh"
   ],
   "labels": ["renovate"],
-  "reviewers": ["ecraig12345"]
+  "reviewers": ["ecraig12345"],
+  "major": {
+    "dependencyDashboardApproval": false
+  }
 }
