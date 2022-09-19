@@ -796,9 +796,9 @@
     fastq "^1.6.0"
 
 "@sinclair/typebox@^0.24.1":
-  version "0.24.41"
-  resolved "https://registry.yarnpkg.com/@sinclair/typebox/-/typebox-0.24.41.tgz#45470b8bae32a28f1e0501066d0bacbd8b772804"
-  integrity sha512-TJCgQurls4FipFvHeC+gfAzb+GGstL0TDwYJKQVtTeSvJIznWzP7g3bAd5gEBlr8+bIxqnWS9VGVWREDhmE8jA==
+  version "0.24.42"
+  resolved "https://registry.yarnpkg.com/@sinclair/typebox/-/typebox-0.24.42.tgz#a74b608d494a1f4cc079738e050142a678813f52"
+  integrity sha512-d+2AtrHGyWek2u2ITF0lHRIv6Tt7X0dEHW+0rP+5aDCEjC3fiN2RBjrLD0yU0at52BcZbRGxLbAtXiR0hFCjYw==
 
 "@sinonjs/commons@^1.7.0":
   version "1.8.3"
@@ -1164,9 +1164,9 @@ camelcase@^6.2.0:
   integrity sha512-Gmy6FhYlCY7uOElZUSbxo2UCDH8owEk996gkbrpsgGtrJLM3J7jGxl9Ic7Qwwj4ivOE5AWZWRMecDdF7hqGjFA==
 
 caniuse-lite@^1.0.30001400:
-  version "1.0.30001400"
-  resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30001400.tgz#3038bee70d8b875604cd8833cb0e5e254ee0281a"
-  integrity sha512-Mv659Hn65Z4LgZdJ7ge5JTVbE3rqbJaaXgW5LEI9/tOaXclfIZ8DW7D7FCWWWmWiiPS7AC48S8kf3DApSxQdgA==
+  version "1.0.30001406"
+  resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30001406.tgz#d0146e7919635479f873b4507517b627f66ab269"
+  integrity sha512-bWTlaXUy/rq0BBtYShc/jArYfBPjEV95euvZ8JVtO43oQExEN/WquoqpufFjNu4kSpi5cy5kMbNvzztWDfv1Jg==
 
 chalk@^2.0.0, chalk@^2.1.0:
   version "2.4.2"
@@ -1390,9 +1390,9 @@ dir-glob@^3.0.1:
     path-type "^4.0.0"
 
 electron-to-chromium@^1.4.251:
-  version "1.4.252"
-  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.4.252.tgz#91d3064b7b4904debfd7726555517500b657e432"
-  integrity sha512-bwfkxPvK2PVbg+dXVFgoun+BkAyJmBPB0AqMTyQ/MzJsA/vEQoTi6Y1uWUDmo/IeOu2zvh4Ac6nfmFOWz5+oHg==
+  version "1.4.254"
+  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.4.254.tgz#c6203583890abf88dfc0be046cd72d3b48f8beb6"
+  integrity sha512-Sh/7YsHqQYkA6ZHuHMy24e6TE4eX6KZVsZb9E/DvU1nQRIrH4BflO/4k+83tfdYvDl+MObvlqHPRICzEdC9c6Q==
 
 emittery@^0.10.2:
   version "0.10.2"
@@ -1683,9 +1683,9 @@ git-up@^7.0.0:
     parse-url "^8.1.0"
 
 git-url-parse@^13.0.0:
-  version "13.0.0"
-  resolved "https://registry.yarnpkg.com/git-url-parse/-/git-url-parse-13.0.0.tgz#9a18d0eaec579fb6379c368aecb09f00b544669c"
-  integrity sha512-X1kozCqKL82dMrCLi4vie9SHDC+QugKskAMs4VUbIkhURKg5yDwxDmf6Ixg73J+/xVgK5TXKhzn8a94nHJHpnA==
+  version "13.1.0"
+  resolved "https://registry.yarnpkg.com/git-url-parse/-/git-url-parse-13.1.0.tgz#07e136b5baa08d59fabdf0e33170de425adf07b4"
+  integrity sha512-5FvPJP/70WkIprlUZ33bm4UAaFdjcLkJLpWft1BeZKqwR0uhhNGoKwlUaPtVb4LxCSQ++erHapRak9kWGj+FCA==
   dependencies:
     git-up "^7.0.0"
 
@@ -2427,7 +2427,7 @@ js-yaml@^3.13.0, js-yaml@^3.13.1, js-yaml@^3.6.1:
     argparse "^1.0.7"
     esprima "^4.0.0"
 
-js-yaml@^4.0.0:
+js-yaml@^4.1.0:
   version "4.1.0"
   resolved "https://registry.yarnpkg.com/js-yaml/-/js-yaml-4.1.0.tgz#c1fb65f8f5017901cdd2c951864ba18458a10602"
   integrity sha512-wpxZs9NoxZaJESJGIZTyDEaYpl0FKSA+FB9aJiyemKhMwkxQg63h4T1KJgUGHpTqPDNRcmmYLugrRjJlBtWvRA==
@@ -2917,14 +2917,6 @@ read-yaml-file@^1.1.0:
     js-yaml "^3.6.1"
     pify "^4.0.1"
     strip-bom "^3.0.0"
-
-read-yaml-file@^2.0.0:
-  version "2.1.0"
-  resolved "https://registry.yarnpkg.com/read-yaml-file/-/read-yaml-file-2.1.0.tgz#c5866712db9ef5343b4d02c2413bada53c41c4a9"
-  integrity sha512-UkRNRIwnhG+y7hpqnycCL/xbTk7+ia9VuVTC0S+zVbwd65DI9eUpRMfsWIGrCWxTU/mi+JW8cHQCrv+zfCbEPQ==
-  dependencies:
-    js-yaml "^4.0.0"
-    strip-bom "^4.0.0"
 
 redent@^3.0.0:
   version "3.0.0"
@@ -3458,17 +3450,17 @@ which@^2.0.1:
     isexe "^2.0.0"
 
 workspace-tools@^0.26.0:
-  version "0.26.5"
-  resolved "https://registry.yarnpkg.com/workspace-tools/-/workspace-tools-0.26.5.tgz#a023ff7294cc6cdee0d25c199af27744d96b82d6"
-  integrity sha512-RUbqQn3DL7WKpb6BHTDiCUJeVMHq7BySzRgzmJcTUmaZTRlUxk/DIpeRSYaisFFjTEOFkGUoylBcBpqIdkrg8w==
+  version "0.26.6"
+  resolved "https://registry.yarnpkg.com/workspace-tools/-/workspace-tools-0.26.6.tgz#5a8045f86545f3221f8cace23f43b42fad5c3897"
+  integrity sha512-BXeb9CXb7WYTCItPmbRt5Of1owfBYzoxaK7UcBCblnMbb9eGG2luGN4FU0UFw2paFceWTv1IMnnuTc094An6dw==
   dependencies:
     "@yarnpkg/lockfile" "^1.1.0"
     find-up "^5.0.0"
     git-url-parse "^13.0.0"
     globby "^11.0.0"
     jju "^1.4.0"
+    js-yaml "^4.1.0"
     micromatch "^4.0.0"
-    read-yaml-file "^2.0.0"
 
 wrap-ansi@^6.2.0:
   version "6.2.0"
