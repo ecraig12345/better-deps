@@ -7,9 +7,7 @@
     "github>microsoft/m365-renovate-config:groupTypes",
     "github>microsoft/m365-renovate-config:keepFresh"
   ],
+  "ignorePresets": ["github>microsoft/m365-renovate-config:dependencyDashboardMajor"],
   "labels": ["renovate"],
-  "reviewers": ["ecraig12345"],
-  "major": {
-    "dependencyDashboardApproval": false
-  }
+  "reviewers": ["ecraig12345"]
 }
