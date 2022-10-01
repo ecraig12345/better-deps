@@ -31,7 +31,7 @@
     "lib/!(__tests__)"
   ],
   "devDependencies": {
-    "@changesets/cli": "2.24.4",
+    "@changesets/cli": "2.25.0",
     "@jest/globals": "29.1.2",
     "@types/node": "16.11.62",
     "jest": "29.1.2",
