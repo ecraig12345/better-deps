@@ -1,18 +1,23 @@
 # better-deps
 
-CLI for cleaning up issues with JavaScript dependencies in monorepos/workspaces.
+CLI for reducing issues with JavaScript dependencies in monorepos/workspaces.
 
-## Caveats
+## Caveat
 
-The term "issues" here is somewhat subjective: the recommendations implemented by this CLI are "better practices" that tend to reduce issues encountered in certain common monorepo setups, but they may not be applicable or preferable in all cases.
+The recommendations implemented by this CLI are "better practices" that tend to reduce issues encountered in certain common monorepo setups, but they may not be applicable or preferable in all cases.
+
+## Commands
 
 Currently, each command has a `--check` mode which can be used in CI, but the commands must be run individually. In the future, the tool may be modified to follow more of a "linter" model with a configurable list of rules, or entirely rewritten as an ESLint plugin.
 
-## Commands
+- [`hoist-dev-deps`](#hoist-dev-deps)
+- [`star-local-dev-deps`](#star-local-dev-deps)
 
 ### `hoist-dev-deps`
 
 Remove `devDependencies` from individual packages and declare them at the monorepo/workspace root instead.
+
+As detailed after the usage info, this is a _potentially_ "less bad" approach to mitigate issues with package manager behavior and reduce churn, but it has some downsides. Some repos may prefer to use a package manager which implements strict installation layout instead (essentially the opposite of this strategy).
 
 #### Options
 
@@ -46,7 +51,7 @@ better-deps hoist-dev-deps --only @types/react @types/react-dom
 
 #### Why
 
-This is a "less bad" approach to mitigate issues with package manager behavior and reduce churn, though it has some downsides.
+This is a _potentially_ "less bad" approach to mitigate issues with package manager behavior and reduce churn, though it has some downsides.
 
 - Pros:
   - Reduces churn and merge conflicts when updating `devDependencies`. This is especially important for frequent updates with a tool such as Renovate or Dependabot.
@@ -55,6 +60,8 @@ This is a "less bad" approach to mitigate issues with package manager behavior a
 - Cons:
   - Makes it less obvious which packages use which `devDependencies`. This can be mitigated somewhat by using the `--threshold` option to hoist only things that are widely used.
   - May make it easier for packages to add implicit dependencies in production code. This can be mitigated by lint rules (which is a good practice regardless).
+
+Another approach which eliminates implicit hoisting while avoiding the cons listed above is to use a package manager which implements strict installation layout instead (essentially the opposite of this strategy). Some examples are [pnpm](https://pnpm.io/), [midgard-yarn-strict](https://www.npmjs.com/package/midgard-yarn-strict), or [npm's upcoming isolated mode](https://github.com/npm/rfcs/blob/main/accepted/0042-isolated-mode.md) once implemented. However, this approach doesn't address issues of churn from updating `devDependencies`.
 
 ### `star-local-dev-deps`
 
