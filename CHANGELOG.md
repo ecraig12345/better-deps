@@ -1,5 +1,11 @@
 # better-deps
 
+## 0.1.6
+
+### Patch Changes
+
+- ac50e1a: Update readme
+
 ## 0.1.5
 
 ### Patch Changes
