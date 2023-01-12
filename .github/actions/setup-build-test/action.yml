@@ -1,0 +1,21 @@
+name: Setup, build, test
+description: Set up environment, build, and test
+
+runs:
+  using: composite
+  steps:
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+
+    - uses: actions/setup-node@v3
+      with:
+        node-version: 14.x
+
+    - run: yarn --frozen-lockfile
+
+    - run: yarn format:check
+
+    - run: yarn build
+
+    - run: yarn test

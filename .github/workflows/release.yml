@@ -1,11 +1,11 @@
 name: CI
 
 on:
-  pull_request:
+  push:
     branches: [main]
 
 permissions:
-  contents: read
+  contents: write
   pull-requests: write
 
 jobs:
@@ -16,8 +16,7 @@ jobs:
       - name: Setup, build, test
         uses: ./.github/actions/setup-build-test
 
-      - name: (main) Create release PR or publish to npm
-        if: ${{ github.ref == 'refs/heads/main' }}
+      - name: Create release PR or publish to npm
         uses: changesets/action@v1
         with:
           publish: yarn release
