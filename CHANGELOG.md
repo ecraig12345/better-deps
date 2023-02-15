@@ -1,5 +1,11 @@
 # better-deps
 
+## 0.1.7
+
+### Patch Changes
+
+- a769fdd: Update dependency workspace-tools to ^0.30.0
+
 ## 0.1.6
 
 ### Patch Changes
