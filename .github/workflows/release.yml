@@ -9,26 +9,32 @@ permissions:
   pull-requests: write
 
 jobs:
-  release:
+  deployment:
     runs-on: ubuntu-latest
+    environment: production
 
     steps:
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-
-      - uses: ./.github/actions/setup
-
-      - run: yarn build
-
-      - run: yarn test
-
-      - name: Create release PR or publish to npm
-        uses: changesets/action@v1
-        with:
-          publish: yarn release
-          commit: Bump package version
-          title: Bump package version
+      - run: |
+          npm dist-tag add better-deps@0.1.7 demo --_authToken=//registry.npmjs.org/:_authToken=$NPM_TOKEN
+          npm dist-tag rm better-deps demo --_authToken=//registry.npmjs.org/:_authToken=$NPM_TOKEN
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      # - uses: actions/checkout@v3
+      #   with:
+      #     fetch-depth: 0
+
+      # - uses: ./.github/actions/setup
+
+      # - run: yarn build
+
+      # - run: yarn test
+
+      # - name: Create release PR or publish to npm
+      #   uses: changesets/action@v1
+      #   with:
+      #     publish: yarn release
+      #     commit: Bump package version
+      #     title: Bump package version
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #     NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
