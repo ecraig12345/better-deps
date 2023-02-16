@@ -13,5 +13,18 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Setup, build, test
-        uses: ./.github/actions/setup-build-test
+      - uses: ./.github/actions/setup
+
+      - run: yarn format:check
+
+      - run: yarn build
+
+      - run: yarn test
+
+      # - name: (main) Upload build output
+      #   if: ${{ github.ref == 'refs/heads/main' }}
+      #   uses: actions/upload-artifact@v2
+      #   with:
+      #     name: lib
+      #     path: lib
+      #     retention-days: 1

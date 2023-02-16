@@ -9,7 +9,7 @@ permissions:
   pull-requests: write
 
 jobs:
-  build:
+  release:
     runs-on: ubuntu-latest
 
     steps:
@@ -17,8 +17,11 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Setup, build, test
-        uses: ./.github/actions/setup-build-test
+      - uses: ./.github/actions/setup
+
+      - run: yarn build
+
+      - run: yarn test
 
       - name: Create release PR or publish to npm
         uses: changesets/action@v1
