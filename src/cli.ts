@@ -11,7 +11,7 @@ program
 const checkOption = new Option(
   '--check',
   'Check for issues without making any changes, and exit non-zero if issues are found',
-);
+
 
 function handleResult(res: PackageInfo[], check: boolean) {
   console.log();
