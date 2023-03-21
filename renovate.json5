@@ -1,13 +1,13 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
-    "github>microsoft/m365-renovate-config:libraryRecommended",
-    "github>microsoft/m365-renovate-config:automergeTypes",
-    "github>microsoft/m365-renovate-config:groupMore",
-    "github>microsoft/m365-renovate-config:groupTypes",
-    "github>microsoft/m365-renovate-config:keepFresh"
+    "github>microsoft/m365-renovate-config:libraryRecommended#no-pin",
+    "github>microsoft/m365-renovate-config:automergeTypes#no-pin",
+    "github>microsoft/m365-renovate-config:groupMore#no-pin",
+    "github>microsoft/m365-renovate-config:groupTypes#no-pin",
+    "github>microsoft/m365-renovate-config:keepFresh#no-pin"
   ],
-  "ignorePresets": ["github>microsoft/m365-renovate-config:dependencyDashboardMajor"],
+  "ignorePresets": ["github>microsoft/m365-renovate-config:dependencyDashboardMajor#no-pin"],
   "labels": ["renovate"],
   "reviewers": ["ecraig12345"]
 }
