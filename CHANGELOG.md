@@ -1,5 +1,15 @@
 # better-deps
 
+## 0.2.0
+
+### Minor Changes
+
+- df4370a: Add unpin-dev-deps command
+
+### Patch Changes
+
+- a3ac656: Update typescript to v5
+
 ## 0.1.7
 
 ### Patch Changes
