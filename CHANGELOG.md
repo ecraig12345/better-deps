@@ -1,5 +1,12 @@
 # better-deps
 
+## 0.2.2
+
+### Patch Changes
+
+- 4dd8910: unpin-dev-deps: add `--range <"minor"|"patch">` and `--minor <deps...>`
+- d930d3c: Update dependency commander to v10
+
 ## 0.2.1
 
 ### Patch Changes

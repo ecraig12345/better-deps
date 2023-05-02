@@ -1,6 +1,6 @@
 {
   "name": "better-deps",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "CLI for reducing issues with JavaScript dependencies",
   "bin": {
     "better-deps": "./bin/better-deps.js"
@@ -10,12 +10,12 @@
   },
   "scripts": {
     "build": "tsc",
+    "bump": "changeset version",
     "change": "changeset",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "release": "changeset publish",
-    "test": "jest",
-    "version": "changeset version"
+    "test": "jest"
   },
   "repository": {
     "type": "git",
