@@ -28,7 +28,7 @@
   },
   "homepage": "https://github.com/ecraig12345/better-deps#readme",
   "files": [
-    "lib/!(__tests__)"
+    "lib/!(__tests__)/**/*"
   ],
   "devDependencies": {
     "@changesets/cli": "^2.26.0",
