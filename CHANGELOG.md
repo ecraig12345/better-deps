@@ -1,5 +1,11 @@
 # better-deps
 
+## 0.2.2
+
+### Patch Changes
+
+- fa82745: Update dependency commander to v10
+
 ## 0.2.1
 
 ### Patch Changes
