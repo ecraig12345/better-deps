@@ -1,5 +1,11 @@
 # better-deps
 
+## 0.2.1
+
+### Patch Changes
+
+- Fix missing file
+
 ## 0.2.0
 
 ### Minor Changes
