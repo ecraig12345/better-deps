@@ -5,11 +5,20 @@ import { writePackageJsonUpdates } from '../utils/writePackageJsonUpdates';
 import { collectDevDeps } from '../utils/collectDevDeps';
 
 export type UnpinDevDepsOptions = {
-  /** exclude these deps */
+  /** Exclude these deps */
   exclude?: string[];
 
-  /** only allow patch version of these deps to vary (`~`) */
+  /**
+   * Type of range to allow for dev deps: minor (`^`) or patch (`~`).
+   * @default 'minor'
+   */
+  range?: 'minor' | 'patch';
+
+  /** Use patch ranges (`~`) for these dev deps */
   patch?: string[];
+
+  /** Use minor ranges (`^`) for these dev deps */
+  minor?: string[];
 
   /** whether to write changes (default true) */
   write?: boolean;
@@ -39,7 +48,7 @@ function getUpdatedPackageInfo(packageInfo: PackageInfo, updateDevDeps: UpdateDe
 }
 
 export function unpinDevDeps(options: UnpinDevDepsOptions) {
-  const { exclude = [], patch = [], write = true } = options;
+  const { range = 'minor', exclude = [], patch = [], minor = [], write = true } = options;
 
   const workspaceInfo = getWorkspaceInfo();
   const { rootPackageInfo, packageInfos } = workspaceInfo;
@@ -53,7 +62,14 @@ export function unpinDevDeps(options: UnpinDevDepsOptions) {
     for (const oldVersion of Object.keys(versions)) {
       // update if it's an exact version and not prerelease
       if (/^\d+\.\d+\.\d+$/.test(oldVersion)) {
-        const newVersion = patch.includes(name) ? `~${oldVersion}` : `^${oldVersion}`;
+        const depRange = patch.includes(name)
+          ? '~'
+          : minor.includes(name)
+          ? '^'
+          : range === 'minor'
+          ? '^'
+          : '~';
+        const newVersion = `${depRange}${oldVersion}`;
         console.log(`Updating ${name}@${oldVersion} to ${newVersion}`);
         updateDevDeps.push({ name, oldVersion, newVersion });
       }

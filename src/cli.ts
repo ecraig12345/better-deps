@@ -77,7 +77,13 @@ program
   .description('Change exact versions of external devDependencies to use ranges')
   .addOption(checkOption)
   .option('--exclude <deps...>', "Don't modify these devDependencies")
-  .option('--patch <deps...>', 'Only allow patch version of these deps to vary (`~`)')
+  .addOption(
+    new Option('--range <type>', 'Use this range type by default ("minor" or "patch")')
+      .choices(['minor', 'patch'])
+      .default('minor'),
+  )
+  .option('--patch <deps...>', 'Use patch ranges (~) for these devDependencies')
+  .option('--minor <deps...>', 'Use minor ranges (^) for these devDependencies')
   .action(({ check, ...options }) => {
     const res = unpinDevDeps({ ...options, write: !check });
     handleResult(res, !!check);

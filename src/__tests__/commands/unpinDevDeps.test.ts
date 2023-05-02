@@ -140,19 +140,45 @@ describe('unpinDevDeps', () => {
     });
   });
 
-  it('respects patch', () => {
+  it('respects range: patch', () => {
     const fixture = getFakeWorkspace({
       packages: {
-        pkg1: { devDependencies: { typescript: '4.0.3' } },
-        pkg2: { devDependencies: { rimraf: '3.0.0', typescript: '4.0.3' } },
+        pkg1: { devDependencies: { rimraf: '3.0.0', typescript: '4.0.3' } },
+      },
+    });
+    mocks = mockWorkspaceAndLogs(fixture);
+
+    const res = unpinDevDeps({ range: 'patch', write: false });
+    expect(getDevDependencies(res)).toEqual({
+      pkg1: { rimraf: '~3.0.0', typescript: '~4.0.3' },
+    });
+  });
+
+  it('respects patch overrides', () => {
+    const fixture = getFakeWorkspace({
+      packages: {
+        pkg1: { devDependencies: { rimraf: '3.0.0', typescript: '4.0.3' } },
       },
     });
     mocks = mockWorkspaceAndLogs(fixture);
 
     const res = unpinDevDeps({ patch: ['typescript'], write: false });
     expect(getDevDependencies(res)).toEqual({
-      pkg1: { typescript: '~4.0.3' },
-      pkg2: { rimraf: '^3.0.0', typescript: '~4.0.3' },
+      pkg1: { rimraf: '^3.0.0', typescript: '~4.0.3' },
+    });
+  });
+
+  it('respects minor overrides', () => {
+    const fixture = getFakeWorkspace({
+      packages: {
+        pkg1: { devDependencies: { rimraf: '3.0.0', typescript: '4.0.3' } },
+      },
+    });
+    mocks = mockWorkspaceAndLogs(fixture);
+
+    const res = unpinDevDeps({ range: 'patch', minor: ['typescript'], write: false });
+    expect(getDevDependencies(res)).toEqual({
+      pkg1: { rimraf: '~3.0.0', typescript: '^4.0.3' },
     });
   });
 });
