@@ -1,3 +1,6 @@
+# Something is wrong with changesets action npm auth, plus the PR isn't actually that helpful...
+# Just go with manual releases using `yarn changeset version`, commit, npm publish instead.
+
 name: Release
 
 on:

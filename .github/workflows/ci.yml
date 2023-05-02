@@ -3,6 +3,8 @@ name: CI
 on:
   pull_request:
     branches: [main]
+  push:
+    branches: [main]
 
 jobs:
   build:
@@ -10,8 +12,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
 
       - uses: ./.github/actions/setup
 
@@ -20,11 +20,3 @@ jobs:
       - run: yarn build
 
       - run: yarn test
-
-      # - name: (main) Upload build output
-      #   if: ${{ github.ref == 'refs/heads/main' }}
-      #   uses: actions/upload-artifact@v2
-      #   with:
-      #     name: lib
-      #     path: lib
-      #     retention-days: 1
