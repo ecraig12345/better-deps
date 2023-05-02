@@ -2,6 +2,7 @@ import { InvalidArgumentError, Option, program } from 'commander';
 import { PackageInfo } from 'workspace-tools';
 import { hoistDevDeps } from './commands/hoistDevDeps';
 import { starLocalDevDeps } from './commands/starLocalDevDeps';
+import { unpinDevDeps } from './commands/unpinDevDeps';
 
 program
   .name('better-deps')
@@ -68,6 +69,17 @@ program
   .addOption(checkOption)
   .action(({ check }) => {
     const res = starLocalDevDeps(!check);
+    handleResult(res, !!check);
+  });
+
+program
+  .command('unpin-dev-deps')
+  .description('Change exact versions of external devDependencies to use ranges')
+  .addOption(checkOption)
+  .option('--exclude <deps...>', "Don't modify these devDependencies")
+  .option('--patch <deps...>', 'Only allow patch version of these deps to vary (`~`)')
+  .action(({ check, ...options }) => {
+    const res = unpinDevDeps({ ...options, write: !check });
     handleResult(res, !!check);
   });
 

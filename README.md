@@ -4,7 +4,7 @@ CLI for reducing issues with JavaScript dependencies in monorepos/workspaces.
 
 ## Caveat
 
-The recommendations implemented by this CLI are "better practices" that tend to reduce issues encountered in certain common monorepo setups, but they may not be applicable or preferable in all cases.
+The changes implemented by this CLI may help reduce issues encountered in certain common monorepo setups, but they may not be applicable or preferable in all cases.
 
 ## Commands
 
@@ -12,12 +12,13 @@ Currently, each command has a `--check` mode which can be used in CI, but the co
 
 - [`hoist-dev-deps`](#hoist-dev-deps)
 - [`star-local-dev-deps`](#star-local-dev-deps)
+- [`unpin-dev-deps`](#unpin-dev-deps)
 
 ### `hoist-dev-deps`
 
 Remove `devDependencies` from individual packages and declare them at the monorepo/workspace root instead.
 
-As detailed after the usage info, this is a _potentially_ "less bad" approach to mitigate issues with package manager behavior and reduce churn, but it has some downsides. Some repos may prefer to use a package manager which implements strict installation layout instead (essentially the opposite of this strategy).
+This approach helps mitigate issues with package manager behavior (particularly Yarn v1) and reduce churn, but it has some downsides. Alternatively, some repos may prefer to use a package manager which implements strict installation layout (essentially the opposite of this strategy).
 
 #### Options
 
@@ -55,6 +56,7 @@ This is a _potentially_ "less bad" approach to mitigate issues with package mana
 
 - Pros:
   - Reduces churn and merge conflicts when updating `devDependencies`. This is especially important for frequent updates with a tool such as Renovate or Dependabot.
+    - This is less important for Renovate now: its capability for lockfile-only in-range updates (such as updating the installed version for `"foo": "^1.0.0"` from `1.1.0` to `1.2.0`) has been improved, so its recommended config presets no longer pin `devDependencies` by default.
   - Makes it easier for a human to update `devDependencies` without accidentally introducing mismatches and duplicates. (But you should also be using [syncpack](https://www.npmjs.com/package/syncpack) or another tool to prevent mismatches!)
   - Prevents the wrong version of a dep from being hoisted implicitly. Most package managers don't install dependencies strictly nested within their trees; instead, they flatten the tree to some degree, which involves implicitly hoisting some deps to be installed under the monorepo's root `node_modules`. Yarn (at least v1) seems _nondeterministic_ about which package version it chooses to install at the repo root if more than one version is present anywhere in the tree, sometimes leading to different behavior between computers. (npm may also have a variant of this problem when generating or updating the lock file.)
 - Cons:
@@ -79,4 +81,27 @@ better-deps star-local-dev-deps
 
 #### Why
 
-If a monorepo runs builds and other tasks on a per-package basis, and most packages have `devDependencies` on some shared script or config packages (which may also be published), using `*` for those `devDependencies` minimizes churn and merge conflicts when package versions are updated, while also maintaining the dependency graph.
+Many monorepos define build scripts or configuration in local packages (which may also be published), and all the other packages have `devDependencies` on the shared build packages. Using `*` for those `devDependencies` minimizes churn and merge conflicts when package versions are updated, while also maintaining the dependency graph.
+
+### `unpin-dev-deps`
+
+Change exact versions of external `devDependencies` to use `^` or `~` ranges (excluding anything using a prerelease version). This is mainly an easy way to revert Renovate's old behavior of pinning `devDependencies`.
+
+#### Options
+
+- `--check`: Check for issues without making any changes, and exit non-zero if issues are found (good for CI)
+- `--exclude <deps...>`: Don't modify these `devDependencies`
+- `--patch <deps...>`: Only allow patch version of these deps to vary (`~`)
+
+#### Usage
+
+```bash
+# Unpin all dev deps
+better-deps unpin-dev-deps
+
+# Unpin all dev deps except typescript and prettier
+better-deps unpin-dev-deps --exclude typescript prettier
+
+# Unpin all dev deps, using ~ versions for typescript and prettier
+better-deps unpin-dev-deps --patch typescript prettier
+```

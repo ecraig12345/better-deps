@@ -4,6 +4,7 @@ import { partialClonePackageInfo } from '../utils/partialClonePackageInfo';
 import { sortObject } from '../utils/sortObject';
 import { Dependencies } from '../utils/types';
 import { writePackageJsonUpdates } from '../utils/writePackageJsonUpdates';
+import { DepVersions, collectDevDeps } from '../utils/collectDevDeps';
 
 export type HoistDevDepsOptions = {
   /** never hoist these deps */
@@ -17,28 +18,6 @@ export type HoistDevDepsOptions = {
   /** whether to write changes (default true) */
   write?: boolean;
 };
-
-/** map from version spec to list of packages using it */
-type DepVersions = { [version: string]: string[] };
-
-/** map from dep name to versions used by packages */
-type CollectedDeps = { [depName: string]: DepVersions };
-
-/**
- * Collect all dev deps from an individual package.
- * @param packageInfo package.json for an individual package
- * @param repoDevDeps accumulated dev deps of the repo
- * @param exclude dep names to exclude
- */
-function collectDevDeps(packageInfo: PackageInfo, repoDevDeps: CollectedDeps, exclude: string[]) {
-  for (const [depName, version] of Object.entries(packageInfo.devDependencies || {})) {
-    if (!exclude.includes(depName)) {
-      repoDevDeps[depName] = repoDevDeps[depName] || {};
-      repoDevDeps[depName][version] = repoDevDeps[depName][version] || [];
-      repoDevDeps[depName][version].push(packageInfo.name);
-    }
-  }
-}
 
 /**
  * Determines whether this dep should be hoisted and which version to use (if multiple are present)
@@ -168,25 +147,15 @@ export function hoistDevDeps(options: HoistDevDepsOptions) {
   threshold &&
     console.log(`"Widely used" threshold: ${Math.round(threshold * 100)}% of packages\n`);
 
-  const { rootPackageInfo, packageInfos, localPackages } = getWorkspaceInfo();
+  const workspaceInfo = getWorkspaceInfo();
+  const { rootPackageInfo, packageInfos, localPackages } = workspaceInfo;
 
-  /** requested exclude packages + local packages */
-  const allNoHoist = [...(exclude || []), ...localPackages];
-
-  const devDeps: CollectedDeps = {};
-
-  // collect dev deps from the root package.json
-  collectDevDeps(rootPackageInfo, devDeps, allNoHoist);
-
-  // collect potentially-hoistable dev deps from all the individual packages
-  for (const packageJson of Object.values(packageInfos)) {
-    collectDevDeps(packageJson, devDeps, allNoHoist);
-  }
+  // collect external dev deps from the root package.json and individual packages
+  const externalDevDeps = collectDevDeps(workspaceInfo, exclude || []);
 
   // generate the hoisting list (and validate that the versions are consistent)
   const hoistedDeps: Dependencies = {};
-  // iterate over deps in sorted order for nicer logging
-  for (const [depName, versions] of Object.entries(sortObject(devDeps))) {
+  for (const [depName, versions] of Object.entries(externalDevDeps)) {
     const hoistVersion = chooseHoistVersion({
       depName,
       versions,

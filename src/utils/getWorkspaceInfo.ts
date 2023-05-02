@@ -15,7 +15,12 @@ export function getWorkspaceInfo(): WorkspacePackagesInfo {
     ...JSON.parse(fs.readFileSync(rootPackageJsonPath, 'utf8')),
   };
 
-  const packageInfos = getPackageInfos(workspaceRoot);
+  // special case: not a monorepo
+  let packageInfos = getPackageInfos(workspaceRoot);
+  if (packageInfos[rootPackageInfo.name]) {
+    packageInfos = { ...packageInfos };
+    delete packageInfos[rootPackageInfo.name];
+  }
 
   return {
     workspaceRoot,

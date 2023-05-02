@@ -1,9 +1,10 @@
 import { jest, describe, it, expect, afterEach } from '@jest/globals';
 import { SpyInstance } from 'jest-mock';
-import { starLocalDevDeps } from '../commands/starLocalDevDeps';
-import * as getWorkspaceInfoModule from '../utils/getWorkspaceInfo';
-import { WorkspacePackagesInfo } from '../utils/types';
-import { getFakeWorkspace } from './fixtures/getFakeWorkspace';
+import { starLocalDevDeps } from '../../commands/starLocalDevDeps';
+import * as getWorkspaceInfoModule from '../../utils/getWorkspaceInfo';
+import { WorkspacePackagesInfo } from '../../utils/types';
+import { getFakeWorkspace } from '../testUtils/getFakeWorkspace';
+import { getDevDependencies } from '../testUtils/getDevDependencies';
 
 describe('starLocalDevDeps', () => {
   let getWorkspaceInfoMock: SpyInstance | undefined;
@@ -32,6 +33,7 @@ describe('starLocalDevDeps', () => {
     mockWorkspaceInfo(fixture);
 
     const res = starLocalDevDeps(false);
+    // test the full objects to verify other properties are preserved
     expect(res).toEqual([
       { ...fixture.packageInfos.foo, devDependencies: { config: '*', scripts: '*' } },
       { ...fixture.packageInfos.bar, devDependencies: { config: '*', scripts: '*' } },
@@ -50,10 +52,10 @@ describe('starLocalDevDeps', () => {
     mockWorkspaceInfo(fixture);
 
     const res = starLocalDevDeps(false);
-    expect(res).toEqual([
-      { ...fixture.packageInfos.foo, devDependencies: { scripts: '*' } },
-      { ...fixture.packageInfos.bar, devDependencies: { scripts: '*' } },
-    ]);
+    expect(getDevDependencies(res)).toEqual({
+      foo: { scripts: '*' },
+      bar: { scripts: '*' },
+    });
   });
 
   it('handles no updates', () => {
@@ -82,7 +84,9 @@ describe('starLocalDevDeps', () => {
 
     const res = starLocalDevDeps(false);
     // foo is NOT modified because it already had scripts as *
-    expect(res).toEqual([{ ...fixture.packageInfos.bar, devDependencies: { scripts: '*' } }]);
+    expect(res).toEqual({
+      bar: { scripts: '*' },
+    });
   });
 
   // TBD whether this is desirable
