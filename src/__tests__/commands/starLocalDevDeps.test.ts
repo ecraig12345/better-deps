@@ -84,7 +84,7 @@ describe('starLocalDevDeps', () => {
 
     const res = starLocalDevDeps(false);
     // foo is NOT modified because it already had scripts as *
-    expect(res).toEqual({
+    expect(getDevDependencies(res)).toEqual({
       bar: { scripts: '*' },
     });
   });
