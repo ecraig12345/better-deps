@@ -43,7 +43,7 @@
     "typescript": "~5.0.0"
   },
   "dependencies": {
-    "commander": "^10.0.1",
+    "commander": "^11.0.0",
     "workspace-tools": "^0.34.0"
   }
 }
