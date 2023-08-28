@@ -3623,10 +3623,10 @@ which@^2.0.1:
   dependencies:
     isexe "^2.0.0"
 
-workspace-tools@^0.34.0:
-  version "0.34.6"
-  resolved "https://registry.yarnpkg.com/workspace-tools/-/workspace-tools-0.34.6.tgz#f895750d8c46d55df1ace101f9c107a9237c1551"
-  integrity sha512-6KDZW4K/t+CM3RGp56KN11Jp75NwNsEgTGCIxnvLbCY14j/Xa67vBCdWipFkB7t72gJJb61qDoCL9CHVNcI6Qg==
+workspace-tools@^0.35.0:
+  version "0.35.0"
+  resolved "https://registry.yarnpkg.com/workspace-tools/-/workspace-tools-0.35.0.tgz#405d7546162b701d5a8ee24d33d6981212095ecb"
+  integrity sha512-Xy6fu6gk4/6jf59H4XE20d8aHCEI4pmfy1xMdmGhTHMf4wDbPbYrd0qywONu88jSu7habVbCB5ygI3v/nttZYg==
   dependencies:
     "@yarnpkg/lockfile" "^1.1.0"
     git-url-parse "^13.0.0"
