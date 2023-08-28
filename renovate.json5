@@ -13,6 +13,7 @@
   "packageRules": [
     {
       "groupName": "devDependencies",
+      "matchDepTypes": ["devDependencies"],
       "matchPackagePatterns": ["*"],
       "matchUpdateTypes": ["minor", "patch"],
       "excludeDepNames": ["typescript"],
