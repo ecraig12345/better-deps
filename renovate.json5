@@ -15,6 +15,7 @@
       "groupName": "devDependencies",
       "matchPackagePatterns": ["*"],
       "matchUpdateTypes": ["minor", "patch"],
+      "excludeDepNames": ["typescript", "workspace-tools"],
       "schedule": ["before 5am on the 5th and 20th day of the month"]
     }
   ]

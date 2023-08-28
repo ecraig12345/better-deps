@@ -62,10 +62,7 @@ describe('hoistDevDeps', () => {
           devDependencies: { jest: '^28.0.0', rimraf: '^3.0.0', typescript: '^4.0.0' },
         },
       ]);
-      expect(mocks.getConsoleLogs()).toMatchInlineSnapshot(`
-        "Hoisting jest@^28.0.0
-        Hoisting rimraf@^3.0.0"
-      `);
+      expect(mocks.getConsoleLogs()).toEqual(['Hoisting jest@^28.0.0', 'Hoisting rimraf@^3.0.0']);
     });
 
     it("works if root doesn't already have devDependencies", () => {
@@ -82,10 +79,7 @@ describe('hoistDevDeps', () => {
           devDependencies: { jest: '^28.0.0', rimraf: '^3.0.0' },
         },
       ]);
-      expect(mocks.getConsoleLogs()).toMatchInlineSnapshot(`
-        "Hoisting jest@^28.0.0
-        Hoisting rimraf@^3.0.0"
-      `);
+      expect(mocks.getConsoleLogs()).toEqual(['Hoisting jest@^28.0.0', 'Hoisting rimraf@^3.0.0']);
     });
 
     it('works with nothing to hoist', () => {
@@ -93,7 +87,7 @@ describe('hoistDevDeps', () => {
       mocks = mockWorkspaceAndLogs(fixture);
 
       expect(hoistDevDeps({ write: false })).toEqual([]);
-      expect(mocks.getConsoleLogs()).toEqual('');
+      expect(mocks.getConsoleLogs()).toEqual([]);
     });
 
     it("doesn't hoist local devDependencies", () => {
@@ -110,7 +104,7 @@ describe('hoistDevDeps', () => {
         pkg1: { scripts: '^1.0.0' },
         'fake-root': { jest: '^28.0.0' },
       });
-      expect(mocks.getConsoleLogs()).toMatchInlineSnapshot(`"Hoisting jest@^28.0.0"`);
+      expect(mocks.getConsoleLogs()).toEqual(['Hoisting jest@^28.0.0']);
     });
 
     it("doesn't hoist dependencies", () => {
@@ -120,7 +114,7 @@ describe('hoistDevDeps', () => {
       mocks = mockWorkspaceAndLogs(fixture);
 
       expect(hoistDevDeps({ write: false })).toEqual([]);
-      expect(mocks.getConsoleLogs()).toEqual('');
+      expect(mocks.getConsoleLogs()).toEqual([]);
     });
 
     it('logs in sorted order', () => {
@@ -134,7 +128,7 @@ describe('hoistDevDeps', () => {
 
       hoistDevDeps({ write: false });
       const sortedDeps = [...deps].sort();
-      const expectedLogs = sortedDeps.map((dep) => `Hoisting ${dep}@1.0.0`).join('\n');
+      const expectedLogs = sortedDeps.map((dep) => `Hoisting ${dep}@1.0.0`);
       expect(mocks.getConsoleLogs()).toEqual(expectedLogs);
     });
 
@@ -148,12 +142,12 @@ describe('hoistDevDeps', () => {
         pkg2: {},
         'fake-root': { jest: '^28.0.0' },
       });
-      expect(mocks.getConsoleLogs()).toMatchInlineSnapshot(`
-        "Found multiple versions of jest: ^28.0.0, ^27.0.0
-          ^28.0.0 in pkg1, pkg2
-          ^27.0.0 in pkg3
-        Hoisting jest@^28.0.0 (choosing most popular version)"
-      `);
+      expect(mocks.getConsoleLogs()).toEqual([
+        'Found multiple versions of jest: ^28.0.0, ^27.0.0',
+        '  ^28.0.0 in pkg1, pkg2',
+        '  ^27.0.0 in pkg3',
+        'Hoisting jest@^28.0.0 (choosing most popular version)',
+      ]);
     });
 
     it('chooses root version if present and mismatched', () => {
@@ -165,12 +159,12 @@ describe('hoistDevDeps', () => {
         'fake-root': { jest: '^27.0.0' },
         pkg3: {},
       });
-      expect(mocks.getConsoleLogs()).toMatchInlineSnapshot(`
-        "Found multiple versions of jest: ^27.0.0, ^28.0.0
-          ^27.0.0 in fake-root, pkg3
-          ^28.0.0 in pkg1, pkg2, pkg4
-        Hoisting jest@^27.0.0 (included in root package.json)"
-      `);
+      expect(mocks.getConsoleLogs()).toEqual([
+        'Found multiple versions of jest: ^27.0.0, ^28.0.0',
+        '  ^27.0.0 in fake-root, pkg3',
+        '  ^28.0.0 in pkg1, pkg2, pkg4',
+        'Hoisting jest@^27.0.0 (included in root package.json)',
+      ]);
     });
 
     it('does nothing if mismatched version is at root only', () => {
@@ -178,11 +172,11 @@ describe('hoistDevDeps', () => {
       mocks = mockWorkspaceAndLogs(fixture);
 
       expect(hoistDevDeps({ write: false })).toEqual([]);
-      expect(mocks.getConsoleLogs()).toMatchInlineSnapshot(`
-        "Found multiple versions of jest: ^27.0.0, ^28.0.0
-          ^27.0.0 in fake-root
-          ^28.0.0 in pkg1, pkg2, pkg4"
-      `);
+      expect(mocks.getConsoleLogs()).toEqual([
+        'Found multiple versions of jest: ^27.0.0, ^28.0.0',
+        '  ^27.0.0 in fake-root',
+        '  ^28.0.0 in pkg1, pkg2, pkg4',
+      ]);
     });
   });
 
@@ -204,7 +198,7 @@ describe('hoistDevDeps', () => {
         { ...fixture.packageInfos.pkg1, devDependencies: { rimraf: '^3.0.0' } },
         { ...fixture.rootPackageInfo, devDependencies: { jest: '^28.0.0' } },
       ]);
-      expect(mocks.getConsoleLogs()).toMatchInlineSnapshot(`"Hoisting jest@^28.0.0"`);
+      expect(mocks.getConsoleLogs()).toEqual(['Hoisting jest@^28.0.0']);
     });
 
     it('excludes deps even if specified at root', () => {
@@ -219,7 +213,7 @@ describe('hoistDevDeps', () => {
         pkg1: { rimraf: '^3.0.0' },
         'fake-root': { rimraf: '^3.0.0', jest: '^28.0.0' },
       });
-      expect(mocks.getConsoleLogs()).toMatchInlineSnapshot(`"Hoisting jest@^28.0.0"`);
+      expect(mocks.getConsoleLogs()).toEqual(['Hoisting jest@^28.0.0']);
     });
   });
 
@@ -238,12 +232,12 @@ describe('hoistDevDeps', () => {
 
     it('throws if used with other options', () => {
       mocks = mockWorkspaceAndLogs(false);
-      expect(() =>
-        hoistDevDeps({ only: ['pkg1'], threshold: 0.5, write: false }),
-      ).toThrowErrorMatchingInlineSnapshot(`"\`only\` and other options are not compatible"`);
-      expect(() =>
-        hoistDevDeps({ only: ['pkg1'], exclude: ['pkg2'], write: false }),
-      ).toThrowErrorMatchingInlineSnapshot(`"\`only\` and other options are not compatible"`);
+      expect(() => hoistDevDeps({ only: ['pkg1'], threshold: 0.5, write: false })).toThrowError(
+        '`only` and other options are not compatible',
+      );
+      expect(() => hoistDevDeps({ only: ['pkg1'], exclude: ['pkg2'], write: false })).toThrowError(
+        '`only` and other options are not compatible',
+      );
     });
 
     it('respects option', () => {
@@ -256,10 +250,10 @@ describe('hoistDevDeps', () => {
         pkg2: {},
         'fake-root': { jest: '^28.0.0', typescript: '^4.0.0', rimraf: '^3.0.0' },
       });
-      expect(mocks.getConsoleLogs()).toMatchInlineSnapshot(`
-        "Hoisting jest@^28.0.0
-        Hoisting typescript@^4.0.0"
-      `);
+      expect(mocks.getConsoleLogs()).toEqual([
+        'Hoisting jest@^28.0.0',
+        'Hoisting typescript@^4.0.0',
+      ]);
     });
 
     it("does nothing with package that's never a devDependency", () => {
@@ -271,7 +265,7 @@ describe('hoistDevDeps', () => {
       mocks = mockWorkspaceAndLogs(fixture);
 
       expect(hoistDevDeps({ only: ['glob'], write: false })).toEqual([]);
-      expect(mocks.getConsoleLogs()).toEqual('');
+      expect(mocks.getConsoleLogs()).toEqual([]);
     });
 
     it('does nothing with local devDependency', () => {
@@ -284,7 +278,7 @@ describe('hoistDevDeps', () => {
       mocks = mockWorkspaceAndLogs(fixture);
 
       expect(hoistDevDeps({ only: ['scripts'], write: false })).toEqual([]);
-      expect(mocks.getConsoleLogs()).toEqual('');
+      expect(mocks.getConsoleLogs()).toEqual([]);
     });
   });
 
@@ -323,28 +317,26 @@ describe('hoistDevDeps', () => {
 
     it('throws if invalid threshold', () => {
       mocks = mockWorkspaceAndLogs(false);
-      expect(() =>
-        hoistDevDeps({ write: false, threshold: -1 }),
-      ).toThrowErrorMatchingInlineSnapshot(`"\`threshold\` must be between 0 and 1 inclusive"`);
-      expect(() =>
-        hoistDevDeps({ write: false, threshold: 50 }),
-      ).toThrowErrorMatchingInlineSnapshot(`"\`threshold\` must be between 0 and 1 inclusive"`);
+      expect(() => hoistDevDeps({ write: false, threshold: -1 })).toThrowError(
+        '`threshold` must be between 0 and 1 inclusive',
+      );
+      expect(() => hoistDevDeps({ write: false, threshold: 50 })).toThrowError(
+        '`threshold` must be between 0 and 1 inclusive',
+      );
     });
 
     it('throws if `always` used without `threshold`', () => {
       mocks = mockWorkspaceAndLogs(false);
-      expect(() =>
-        hoistDevDeps({ write: false, always: ['pkg1'] }),
-      ).toThrowErrorMatchingInlineSnapshot(`"\`always\` is only relevant with \`threshold\`"`);
+      expect(() => hoistDevDeps({ write: false, always: ['pkg1'] })).toThrowError(
+        '`always` is only relevant with `threshold`',
+      );
     });
 
     it('throws if a package is listed in both `exclude` and `always`', () => {
       mocks = mockWorkspaceAndLogs(false);
       expect(() =>
         hoistDevDeps({ write: false, exclude: ['pkg1'], always: ['pkg1'], threshold: 0.5 }),
-      ).toThrowErrorMatchingInlineSnapshot(
-        `"a package cannot be listed in both \`exclude\` and \`always\`"`,
-      );
+      ).toThrowError('a package cannot be listed in both `exclude` and `always`');
     });
 
     it('respects threshold', () => {
@@ -361,14 +353,14 @@ describe('hoistDevDeps', () => {
           devDependencies: { jest: '^28.0.0', rimraf: '^3.0.0' },
         },
       ]);
-      expect(mocks.getConsoleLogs()).toMatchInlineSnapshot(`
-        ""Widely used" threshold: 50% of packages
-
-        NOT hoisting glob (used by 25%)
-        Hoisting jest@^28.0.0 (used by 50%)
-        Hoisting rimraf@^3.0.0 (used by 50%)
-        NOT hoisting typescript (used by 25%)"
-      `);
+      expect(mocks.getConsoleLogs()).toEqual([
+        '"Widely used" threshold: 50% of packages',
+        '',
+        'NOT hoisting glob (used by 25%)',
+        'Hoisting jest@^28.0.0 (used by 50%)',
+        'Hoisting rimraf@^3.0.0 (used by 50%)',
+        'NOT hoisting typescript (used by 25%)',
+      ]);
     });
 
     it('overrides threshold with always', () => {
@@ -386,11 +378,11 @@ describe('hoistDevDeps', () => {
         pkg1: {},
         'fake-root': { jest: '^28.0.0' },
       });
-      expect(mocks.getConsoleLogs()).toMatchInlineSnapshot(`
-        ""Widely used" threshold: 50% of packages
-
-        Hoisting jest@^28.0.0 (as requested)"
-      `);
+      expect(mocks.getConsoleLogs()).toEqual([
+        '"Widely used" threshold: 50% of packages',
+        '',
+        'Hoisting jest@^28.0.0 (as requested)',
+      ]);
     });
 
     it('hoists root deps regardless of threshold', () => {
@@ -407,14 +399,14 @@ describe('hoistDevDeps', () => {
         pkg3: {},
         'fake-root': { jest: '^28.0.0', rimraf: '^3.0.0', glob: '^8.0.0' },
       });
-      expect(mocks.getConsoleLogs()).toMatchInlineSnapshot(`
-        ""Widely used" threshold: 50% of packages
-
-        Hoisting glob@^8.0.0 (included in root package.json)
-        Hoisting jest@^28.0.0 (used by 50%)
-        Hoisting rimraf@^3.0.0 (used by 50%)
-        NOT hoisting typescript (used by 25%)"
-      `);
+      expect(mocks.getConsoleLogs()).toEqual([
+        '"Widely used" threshold: 50% of packages',
+        '',
+        'Hoisting glob@^8.0.0 (included in root package.json)',
+        'Hoisting jest@^28.0.0 (used by 50%)',
+        'Hoisting rimraf@^3.0.0 (used by 50%)',
+        'NOT hoisting typescript (used by 25%)',
+      ]);
     });
 
     it('hoists deps over threshold even if mismatched', () => {
@@ -427,14 +419,14 @@ describe('hoistDevDeps', () => {
         pkg1: {},
         pkg2: {},
       });
-      expect(mocks.getConsoleLogs()).toMatchInlineSnapshot(`
-        ""Widely used" threshold: 50% of packages
-
-        Found multiple versions of jest: ^28.0.0, ^27.0.0
-          ^28.0.0 in pkg1, pkg2
-          ^27.0.0 in pkg3
-        Hoisting jest@^28.0.0 (used by 67%, choosing most popular version)"
-      `);
+      expect(mocks.getConsoleLogs()).toEqual([
+        '"Widely used" threshold: 50% of packages',
+        '',
+        'Found multiple versions of jest: ^28.0.0, ^27.0.0',
+        '  ^28.0.0 in pkg1, pkg2',
+        '  ^27.0.0 in pkg3',
+        'Hoisting jest@^28.0.0 (used by 67%, choosing most popular version)',
+      ]);
     });
 
     // behavior could potentially be better here
@@ -444,14 +436,14 @@ describe('hoistDevDeps', () => {
 
       const res = hoistDevDeps({ threshold: 0.5, write: false });
       expect(res).toEqual([]);
-      expect(mocks.getConsoleLogs()).toMatchInlineSnapshot(`
-        ""Widely used" threshold: 50% of packages
-
-        Found multiple versions of jest: ^28.0.0, ^27.0.0
-          ^28.0.0 in pkg1, pkg2
-          ^27.0.0 in pkg3
-        NOT hoisting jest (used by 40%)"
-      `);
+      expect(mocks.getConsoleLogs()).toEqual([
+        '"Widely used" threshold: 50% of packages',
+        '',
+        'Found multiple versions of jest: ^28.0.0, ^27.0.0',
+        '  ^28.0.0 in pkg1, pkg2',
+        '  ^27.0.0 in pkg3',
+        'NOT hoisting jest (used by 40%)',
+      ]);
     });
 
     it('hoists mismatched version even if below threshold when specified in `always`', () => {
@@ -464,14 +456,14 @@ describe('hoistDevDeps', () => {
         pkg1: {},
         pkg2: {},
       });
-      expect(mocks.getConsoleLogs()).toMatchInlineSnapshot(`
-        ""Widely used" threshold: 50% of packages
-
-        Found multiple versions of jest: ^28.0.0, ^27.0.0
-          ^28.0.0 in pkg1, pkg2
-          ^27.0.0 in pkg3
-        Hoisting jest@^28.0.0 (as requested, choosing most popular version)"
-      `);
+      expect(mocks.getConsoleLogs()).toEqual([
+        '"Widely used" threshold: 50% of packages',
+        '',
+        'Found multiple versions of jest: ^28.0.0, ^27.0.0',
+        '  ^28.0.0 in pkg1, pkg2',
+        '  ^27.0.0 in pkg3',
+        'Hoisting jest@^28.0.0 (as requested, choosing most popular version)',
+      ]);
     });
 
     it('hoists mismatched deps under threshold if at root', () => {
@@ -483,14 +475,14 @@ describe('hoistDevDeps', () => {
         'fake-root': { jest: '^27.0.0' },
         pkg3: {},
       });
-      expect(mocks.getConsoleLogs()).toMatchInlineSnapshot(`
-        ""Widely used" threshold: 50% of packages
-
-        Found multiple versions of jest: ^27.0.0, ^28.0.0
-          ^27.0.0 in fake-root, pkg3
-          ^28.0.0 in pkg1, pkg2
-        Hoisting jest@^27.0.0 (included in root package.json)"
-      `);
+      expect(mocks.getConsoleLogs()).toEqual([
+        '"Widely used" threshold: 50% of packages',
+        '',
+        'Found multiple versions of jest: ^27.0.0, ^28.0.0',
+        '  ^27.0.0 in fake-root, pkg3',
+        '  ^28.0.0 in pkg1, pkg2',
+        'Hoisting jest@^27.0.0 (included in root package.json)',
+      ]);
     });
   });
 });

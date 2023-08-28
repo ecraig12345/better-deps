@@ -12,7 +12,7 @@ export function mockWorkspaceAndLogs(fixture: WorkspacePackagesInfo | false) {
 
   // combine console.log and console.warn output in order
   const logs: string[] = [];
-  const getConsoleLogs = () => logs.join('\n');
+  const getConsoleLogs = () => (logs.length ? logs.join('\n').split('\n') : []);
   const saveLog = (...args: any[]) => logs.push(args.join(' '));
   const consoleLogMock = jest.spyOn(console, 'log').mockImplementation(saveLog);
   const consoleWarnMock = jest.spyOn(console, 'warn').mockImplementation(saveLog);

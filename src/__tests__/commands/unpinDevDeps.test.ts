@@ -28,11 +28,11 @@ describe('unpinDevDeps', () => {
       { ...fixture.packageInfos.pkg1, devDependencies: { jest: '^28.5.6' } },
       { ...fixture.packageInfos.pkg2, devDependencies: { jest: '^28.5.6', rimraf: '^3.0.0' } },
     ]);
-    expect(mocks.getConsoleLogs()).toMatchInlineSnapshot(`
-      "Updating jest@28.5.6 to ^28.5.6
-      Updating rimraf@3.0.0 to ^3.0.0
-      Updating typescript@4.0.1 to ^4.0.1"
-    `);
+    expect(mocks.getConsoleLogs()).toEqual([
+      'Updating jest@28.5.6 to ^28.5.6',
+      'Updating rimraf@3.0.0 to ^3.0.0',
+      'Updating typescript@4.0.1 to ^4.0.1',
+    ]);
   });
 
   it('works with multiple versions', () => {
@@ -53,10 +53,10 @@ describe('unpinDevDeps', () => {
       pkg2: { jest: '^28.2.0' },
       pkg3: { jest: '^28.0.5' },
     });
-    expect(mocks.getConsoleLogs()).toMatchInlineSnapshot(`
-      "Updating jest@28.2.0 to ^28.2.0
-      Updating jest@28.0.5 to ^28.0.5"
-    `);
+    expect(mocks.getConsoleLogs()).toEqual([
+      'Updating jest@28.2.0 to ^28.2.0',
+      'Updating jest@28.0.5 to ^28.0.5',
+    ]);
   });
 
   it('works with nothing to do', () => {
@@ -64,7 +64,7 @@ describe('unpinDevDeps', () => {
     mocks = mockWorkspaceAndLogs(fixture);
 
     expect(unpinDevDeps({ write: false })).toEqual([]);
-    expect(mocks.getConsoleLogs()).toEqual('');
+    expect(mocks.getConsoleLogs()).toEqual([]);
   });
 
   it("doesn't modify existing ranges", () => {
@@ -75,7 +75,7 @@ describe('unpinDevDeps', () => {
 
     const res = unpinDevDeps({ write: false });
     expect(res).toEqual([]);
-    expect(mocks.getConsoleLogs()).toEqual('');
+    expect(mocks.getConsoleLogs()).toEqual([]);
   });
 
   it('works in a non-monorepo', () => {
@@ -101,7 +101,7 @@ describe('unpinDevDeps', () => {
     expect(getDevDependencies(res)).toEqual({
       pkg1: { jest: '^28.2.0', scripts: '1.0.0' },
     });
-    expect(mocks.getConsoleLogs()).toMatchInlineSnapshot(`"Updating jest@28.2.0 to ^28.2.0"`);
+    expect(mocks.getConsoleLogs()).toEqual(['Updating jest@28.2.0 to ^28.2.0']);
   });
 
   it("doesn't modify prerelease versions", () => {
@@ -112,7 +112,7 @@ describe('unpinDevDeps', () => {
 
     const res = unpinDevDeps({ write: false });
     expect(res).toEqual([]);
-    expect(mocks.getConsoleLogs()).toEqual('');
+    expect(mocks.getConsoleLogs()).toEqual([]);
   });
 
   it("doesn't modify dependencies", () => {
@@ -122,7 +122,7 @@ describe('unpinDevDeps', () => {
     mocks = mockWorkspaceAndLogs(fixture);
 
     expect(unpinDevDeps({ write: false })).toEqual([]);
-    expect(mocks.getConsoleLogs()).toEqual('');
+    expect(mocks.getConsoleLogs()).toEqual([]);
   });
 
   it('respects exclude', () => {
