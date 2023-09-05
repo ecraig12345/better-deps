@@ -1,5 +1,11 @@
 # better-deps
 
+## 0.2.3
+
+### Patch Changes
+
+- Update workspace-tools to 0.35.0 ([91dbafb](https://github.com/ecraig12345/better-deps/commit/91dbafb))
+
 ## 0.2.2
 
 ### Patch Changes
