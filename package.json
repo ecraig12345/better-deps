@@ -44,6 +44,6 @@
   },
   "dependencies": {
     "commander": "^10.0.1",
-    "workspace-tools": "^0.35.0"
+    "workspace-tools": "^0.36.3"
   }
 }
