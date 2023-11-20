@@ -65,10 +65,10 @@ export function unpinDevDeps(options: UnpinDevDepsOptions) {
         const depRange = patch.includes(name)
           ? '~'
           : minor.includes(name)
-          ? '^'
-          : range === 'minor'
-          ? '^'
-          : '~';
+            ? '^'
+            : range === 'minor'
+              ? '^'
+              : '~';
         const newVersion = `${depRange}${oldVersion}`;
         console.log(`Updating ${name}@${oldVersion} to ${newVersion}`);
         updateDevDeps.push({ name, oldVersion, newVersion });
