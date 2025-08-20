@@ -4,21 +4,26 @@
     "github>microsoft/m365-renovate-config",
     "github>microsoft/m365-renovate-config:groupMore",
     "github>microsoft/m365-renovate-config:keepFresh",
-    "github>microsoft/m365-renovate-config:restrictNode(16)"
+    "github>microsoft/m365-renovate-config:restrictNode(20)"
   ],
   "ignorePresets": ["github>microsoft/m365-renovate-config:dependencyDashboardMajor"],
 
   "labels": ["renovate"],
   "reviewers": ["ecraig12345"],
+  "dependencyDashboard": true,
+
+  "lockFileMaintenance": {
+    "schedule": ["before 5am on the 1st"]
+  },
 
   "packageRules": [
     {
       "groupName": "devDependencies",
       "matchDepTypes": ["devDependencies"],
-      "matchPackagePatterns": ["*"],
+      "matchPackageNames": ["*"],
       "matchUpdateTypes": ["minor", "patch"],
-      "excludeDepNames": ["typescript"],
-      "schedule": ["before 5am on the 5th and 20th day of the month"]
+      "matchDepNames": ["!typescript"],
+      "schedule": ["before 5am on the 5th day of the month"]
     }
   ]
 }
