@@ -13,7 +13,7 @@
   "dependencyDashboard": true,
 
   "lockFileMaintenance": {
-    "schedule": ["before 5am on the 1st"]
+    "schedule": ["before 5am on the 1st day of the month"]
   },
 
   "packageRules": [
