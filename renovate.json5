@@ -1,24 +1,24 @@
 {
-  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": [
+  $schema: "https://docs.renovatebot.com/renovate-schema.json",
+  extends: [
     "github>microsoft/m365-renovate-config",
     "github>microsoft/m365-renovate-config:groupMore",
     "github>microsoft/m365-renovate-config:keepFresh",
-    "github>microsoft/m365-renovate-config:restrictNode(16)"
+    "github>microsoft/m365-renovate-config:restrictNode(16)",
   ],
-  "ignorePresets": ["github>microsoft/m365-renovate-config:dependencyDashboardMajor"],
-
-  "labels": ["renovate"],
-  "reviewers": ["ecraig12345"],
-
-  "packageRules": [
+  ignorePresets: [
+    "github>microsoft/m365-renovate-config:dependencyDashboardMajor",
+  ],
+  labels: ["renovate"],
+  reviewers: ["ecraig12345"],
+  packageRules: [
     {
-      "groupName": "devDependencies",
-      "matchDepTypes": ["devDependencies"],
-      "matchPackagePatterns": ["*"],
-      "matchUpdateTypes": ["minor", "patch"],
-      "excludeDepNames": ["typescript"],
-      "schedule": ["before 5am on the 5th and 20th day of the month"]
-    }
-  ]
+      groupName: "devDependencies",
+      matchDepTypes: ["devDependencies"],
+      matchUpdateTypes: ["minor", "patch"],
+      schedule: ["before 5am on the 5th and 20th day of the month"],
+      matchPackageNames: ["*"],
+      matchDepNames: ["!typescript"],
+    },
+  ],
 }
