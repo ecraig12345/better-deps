@@ -1,5 +1,15 @@
 # better-deps
 
+## 0.3.0
+
+### Minor Changes
+
+- Require Node 20+ ([0b914aaeffcb7f2517b162331081a8828c8e465c](https://github.com/ecraig12345/better-deps/commit/0b914aaeffcb7f2517b162331081a8828c8e465c))
+
+### Patch Changes
+
+- Update dependency workspace-tools to ^0.40.0 ([0625fd02ccec0dfd1023d0844e05182a93d17fa4](https://github.com/ecraig12345/better-deps/commit/0625fd02ccec0dfd1023d0844e05182a93d17fa4))
+
 ## 0.2.3
 
 ### Patch Changes
