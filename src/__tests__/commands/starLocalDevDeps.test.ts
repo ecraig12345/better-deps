@@ -1,28 +1,28 @@
 import { jest, describe, it, expect, afterEach } from '@jest/globals';
 import { SpyInstance } from 'jest-mock';
 import { starLocalDevDeps } from '../../commands/starLocalDevDeps';
-import * as getWorkspaceInfoModule from '../../utils/getWorkspaceInfo';
-import { WorkspacePackagesInfo } from '../../utils/types';
-import { getFakeWorkspace } from '../testUtils/getFakeWorkspace';
+import * as getMonorepoInfoModule from '../../utils/getMonorepoInfo';
+import { MonorepoInfo } from '../../utils/types';
+import { getFakeMonorepo } from '../testUtils/getFakeMonorepo';
 import { getDevDependencies } from '../testUtils/getDevDependencies';
 
 describe('starLocalDevDeps', () => {
-  let getWorkspaceInfoMock: SpyInstance | undefined;
+  let getMonorepoInfoMock: SpyInstance | undefined;
 
-  function mockWorkspaceInfo(fixture: WorkspacePackagesInfo) {
-    getWorkspaceInfoMock = jest
-      .spyOn(getWorkspaceInfoModule, 'getWorkspaceInfo')
+  function mockMonorepoInfo(fixture: MonorepoInfo) {
+    getMonorepoInfoMock = jest
+      .spyOn(getMonorepoInfoModule, 'getMonorepoInfo')
       .mockImplementationOnce(() => fixture);
   }
 
   afterEach(() => {
     // restore this in case a test failed and it never got called
-    getWorkspaceInfoMock?.mockRestore();
-    getWorkspaceInfoMock = undefined;
+    getMonorepoInfoMock?.mockRestore();
+    getMonorepoInfoMock = undefined;
   });
 
   it('works in basic case', () => {
-    const fixture = getFakeWorkspace({
+    const fixture = getFakeMonorepo({
       packages: {
         foo: { devDependencies: { config: '^1.0.0', scripts: '^1.0.0' } },
         bar: { devDependencies: { config: '^1.0.0', scripts: '^1.0.0' } },
@@ -30,7 +30,7 @@ describe('starLocalDevDeps', () => {
         scripts: {},
       },
     });
-    mockWorkspaceInfo(fixture);
+    mockMonorepoInfo(fixture);
 
     const res = starLocalDevDeps(false);
     // test the full objects to verify other properties are preserved
@@ -42,14 +42,14 @@ describe('starLocalDevDeps', () => {
   });
 
   it("doesn't update dependencies", () => {
-    const fixture = getFakeWorkspace({
+    const fixture = getFakeMonorepo({
       packages: {
         foo: { dependencies: { bar: '^1.0.0' }, devDependencies: { scripts: '^1.0.0' } },
         bar: { devDependencies: { scripts: '^1.0.0' } },
         scripts: {},
       },
     });
-    mockWorkspaceInfo(fixture);
+    mockMonorepoInfo(fixture);
 
     const res = starLocalDevDeps(false);
     expect(getDevDependencies(res)).toEqual({
@@ -59,13 +59,13 @@ describe('starLocalDevDeps', () => {
   });
 
   it('handles no updates', () => {
-    const fixture = getFakeWorkspace({
+    const fixture = getFakeMonorepo({
       packages: {
         foo: { dependencies: { bar: '^1.0.0' } },
         bar: {},
       },
     });
-    mockWorkspaceInfo(fixture);
+    mockMonorepoInfo(fixture);
 
     const res = starLocalDevDeps(false);
     expect(res).toEqual([]);
@@ -73,14 +73,14 @@ describe('starLocalDevDeps', () => {
 
   it("doesn't update packages already using *", () => {
     // this is mainly important for --check mode
-    const fixture = getFakeWorkspace({
+    const fixture = getFakeMonorepo({
       packages: {
         foo: { devDependencies: { scripts: '*' } },
         bar: { devDependencies: { scripts: '^1.0.0' } },
         scripts: {},
       },
     });
-    mockWorkspaceInfo(fixture);
+    mockMonorepoInfo(fixture);
 
     const res = starLocalDevDeps(false);
     // foo is NOT modified because it already had scripts as *
@@ -90,14 +90,14 @@ describe('starLocalDevDeps', () => {
   });
 
   // TBD whether this is desirable
-  it("doesn't update workspace root", () => {
-    const fixture = getFakeWorkspace({
+  it("doesn't update repo root", () => {
+    const fixture = getFakeMonorepo({
       root: { devDependencies: { foo: '^1.0.0' } },
       packages: {
         foo: {},
       },
     });
-    mockWorkspaceInfo(fixture);
+    mockMonorepoInfo(fixture);
 
     const res = starLocalDevDeps(false);
     expect(res).toEqual([]);

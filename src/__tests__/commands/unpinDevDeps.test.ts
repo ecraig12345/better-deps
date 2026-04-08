@@ -1,25 +1,25 @@
 import { describe, it, expect, afterEach } from '@jest/globals';
 import { unpinDevDeps } from '../../commands/unpinDevDeps';
-import { getFakeWorkspace } from '../testUtils/getFakeWorkspace';
-import { mockWorkspaceAndLogs } from '../testUtils/mockWorkspace';
+import { getFakeMonorepo } from '../testUtils/getFakeMonorepo';
+import { mockMonorepoAndLogs } from '../testUtils/mockMonorepo';
 import { getDevDependencies } from '../testUtils/getDevDependencies';
 
 describe('unpinDevDeps', () => {
-  let mocks: ReturnType<typeof mockWorkspaceAndLogs> | undefined;
+  let mocks: ReturnType<typeof mockMonorepoAndLogs> | undefined;
 
   afterEach(() => {
     mocks?.restore();
   });
 
   it('works in basic case', () => {
-    const fixture = getFakeWorkspace({
+    const fixture = getFakeMonorepo({
       root: { devDependencies: { typescript: '4.0.1' } },
       packages: {
         pkg1: { devDependencies: { jest: '28.5.6' } },
         pkg2: { devDependencies: { jest: '28.5.6', rimraf: '3.0.0' } },
       },
     });
-    mocks = mockWorkspaceAndLogs(fixture);
+    mocks = mockMonorepoAndLogs(fixture);
 
     const res = unpinDevDeps({ write: false });
     // test the full objects to verify other properties are preserved
@@ -36,14 +36,14 @@ describe('unpinDevDeps', () => {
   });
 
   it('works with multiple versions', () => {
-    const fixture = getFakeWorkspace({
+    const fixture = getFakeMonorepo({
       packages: {
         pkg1: { devDependencies: { jest: '28.2.0' } },
         pkg2: { devDependencies: { jest: '28.2.0' } },
         pkg3: { devDependencies: { jest: '28.0.5' } },
       },
     });
-    mocks = mockWorkspaceAndLogs(fixture);
+    mocks = mockMonorepoAndLogs(fixture);
 
     const res = unpinDevDeps({ write: false });
     // Kind of debatable if this is "right" but currently it preserves each individual version
@@ -60,18 +60,18 @@ describe('unpinDevDeps', () => {
   });
 
   it('works with nothing to do', () => {
-    const fixture = getFakeWorkspace({ packages: { pkg1: {} } });
-    mocks = mockWorkspaceAndLogs(fixture);
+    const fixture = getFakeMonorepo({ packages: { pkg1: {} } });
+    mocks = mockMonorepoAndLogs(fixture);
 
     expect(unpinDevDeps({ write: false })).toEqual([]);
     expect(mocks.getConsoleLogs()).toEqual([]);
   });
 
   it("doesn't modify existing ranges", () => {
-    const fixture = getFakeWorkspace({
+    const fixture = getFakeMonorepo({
       packages: { pkg1: { devDependencies: { jest: '~28.0.0' } } },
     });
-    mocks = mockWorkspaceAndLogs(fixture);
+    mocks = mockMonorepoAndLogs(fixture);
 
     const res = unpinDevDeps({ write: false });
     expect(res).toEqual([]);
@@ -79,23 +79,23 @@ describe('unpinDevDeps', () => {
   });
 
   it('works in a non-monorepo', () => {
-    const fixture = getFakeWorkspace({
+    const fixture = getFakeMonorepo({
       root: { devDependencies: { jest: '28.2.0' } },
     });
-    mocks = mockWorkspaceAndLogs(fixture);
+    mocks = mockMonorepoAndLogs(fixture);
 
     const res = unpinDevDeps({ write: false });
     expect(res).toEqual([{ ...fixture.rootPackageInfo, devDependencies: { jest: '^28.2.0' } }]);
   });
 
   it("doesn't modify local devDependencies", () => {
-    const fixture = getFakeWorkspace({
+    const fixture = getFakeMonorepo({
       packages: {
         pkg1: { devDependencies: { jest: '28.2.0', scripts: '1.0.0' } },
         scripts: {},
       },
     });
-    mocks = mockWorkspaceAndLogs(fixture);
+    mocks = mockMonorepoAndLogs(fixture);
 
     const res = unpinDevDeps({ write: false });
     expect(getDevDependencies(res)).toEqual({
@@ -105,10 +105,10 @@ describe('unpinDevDeps', () => {
   });
 
   it("doesn't modify prerelease versions", () => {
-    const fixture = getFakeWorkspace({
+    const fixture = getFakeMonorepo({
       packages: { pkg1: { devDependencies: { jest: '28.2.0-rc.0' } } },
     });
-    mocks = mockWorkspaceAndLogs(fixture);
+    mocks = mockMonorepoAndLogs(fixture);
 
     const res = unpinDevDeps({ write: false });
     expect(res).toEqual([]);
@@ -116,23 +116,23 @@ describe('unpinDevDeps', () => {
   });
 
   it("doesn't modify dependencies", () => {
-    const fixture = getFakeWorkspace({
+    const fixture = getFakeMonorepo({
       packages: { pkg1: { dependencies: { jest: '^28.0.0' } } },
     });
-    mocks = mockWorkspaceAndLogs(fixture);
+    mocks = mockMonorepoAndLogs(fixture);
 
     expect(unpinDevDeps({ write: false })).toEqual([]);
     expect(mocks.getConsoleLogs()).toEqual([]);
   });
 
   it('respects exclude', () => {
-    const fixture = getFakeWorkspace({
+    const fixture = getFakeMonorepo({
       packages: {
         pkg1: { devDependencies: { typescript: '4.0.3' } },
         pkg2: { devDependencies: { rimraf: '3.0.0', typescript: '4.0.3' } },
       },
     });
-    mocks = mockWorkspaceAndLogs(fixture);
+    mocks = mockMonorepoAndLogs(fixture);
 
     const res = unpinDevDeps({ exclude: ['typescript'], write: false });
     expect(getDevDependencies(res)).toEqual({
@@ -141,12 +141,12 @@ describe('unpinDevDeps', () => {
   });
 
   it('respects range: patch', () => {
-    const fixture = getFakeWorkspace({
+    const fixture = getFakeMonorepo({
       packages: {
         pkg1: { devDependencies: { rimraf: '3.0.0', typescript: '4.0.3' } },
       },
     });
-    mocks = mockWorkspaceAndLogs(fixture);
+    mocks = mockMonorepoAndLogs(fixture);
 
     const res = unpinDevDeps({ range: 'patch', write: false });
     expect(getDevDependencies(res)).toEqual({
@@ -155,12 +155,12 @@ describe('unpinDevDeps', () => {
   });
 
   it('respects patch overrides', () => {
-    const fixture = getFakeWorkspace({
+    const fixture = getFakeMonorepo({
       packages: {
         pkg1: { devDependencies: { rimraf: '3.0.0', typescript: '4.0.3' } },
       },
     });
-    mocks = mockWorkspaceAndLogs(fixture);
+    mocks = mockMonorepoAndLogs(fixture);
 
     const res = unpinDevDeps({ patch: ['typescript'], write: false });
     expect(getDevDependencies(res)).toEqual({
@@ -169,12 +169,12 @@ describe('unpinDevDeps', () => {
   });
 
   it('respects minor overrides', () => {
-    const fixture = getFakeWorkspace({
+    const fixture = getFakeMonorepo({
       packages: {
         pkg1: { devDependencies: { rimraf: '3.0.0', typescript: '4.0.3' } },
       },
     });
-    mocks = mockWorkspaceAndLogs(fixture);
+    mocks = mockMonorepoAndLogs(fixture);
 
     const res = unpinDevDeps({ range: 'patch', minor: ['typescript'], write: false });
     expect(getDevDependencies(res)).toEqual({

@@ -1,10 +1,9 @@
-import { PackageInfo } from 'workspace-tools';
-import { getWorkspaceInfo } from '../utils/getWorkspaceInfo';
-import { partialClonePackageInfo } from '../utils/partialClonePackageInfo';
+import type { PackageInfo } from 'workspace-tools';
+import { getMonorepoInfo } from '../utils/getMonorepoInfo';
 import { sortObject } from '../utils/sortObject';
-import { Dependencies } from '../utils/types';
+import type { Dependencies } from '../utils/types';
 import { writePackageJsonUpdates } from '../utils/writePackageJsonUpdates';
-import { DepVersions, collectDevDeps } from '../utils/collectDevDeps';
+import { type DepVersions, collectDevDeps } from '../utils/collectDevDeps';
 
 export type HoistDevDepsOptions = {
   /** never hoist these deps */
@@ -121,7 +120,7 @@ function getUpdatedPackageInfo(packageInfo: PackageInfo, hoistedDeps: Dependenci
   let updatedInfo: PackageInfo | undefined;
   for (const [name, version] of Object.entries(hoistedDeps)) {
     if (packageInfo.devDependencies[name] === version) {
-      updatedInfo ??= partialClonePackageInfo(packageInfo, ['devDependencies']);
+      updatedInfo ??= { ...packageInfo, devDependencies: { ...packageInfo.devDependencies } };
       delete updatedInfo.devDependencies![name];
     }
   }
@@ -147,11 +146,11 @@ export function hoistDevDeps(options: HoistDevDepsOptions) {
   threshold &&
     console.log(`"Widely used" threshold: ${Math.round(threshold * 100)}% of packages\n`);
 
-  const workspaceInfo = getWorkspaceInfo();
-  const { rootPackageInfo, packageInfos, localPackages } = workspaceInfo;
+  const repoInfo = getMonorepoInfo();
+  const { rootPackageInfo, packageInfos } = repoInfo;
 
   // collect external dev deps from the root package.json and individual packages
-  const externalDevDeps = collectDevDeps(workspaceInfo, exclude || []);
+  const externalDevDeps = collectDevDeps(repoInfo, exclude || []);
 
   // generate the hoisting list (and validate that the versions are consistent)
   const hoistedDeps: Dependencies = {};
@@ -160,7 +159,7 @@ export function hoistDevDeps(options: HoistDevDepsOptions) {
       depName,
       versions,
       rootDepVersion: rootPackageInfo.devDependencies?.[depName],
-      localPackageCount: localPackages.length,
+      localPackageCount: Object.keys(packageInfos).length,
       always,
       only,
       threshold,

@@ -1,5 +1,5 @@
 import { sortObject } from './sortObject';
-import { WorkspacePackagesInfo } from './types';
+import { MonorepoInfo } from './types';
 
 /** map from version spec to list of packages using it */
 export type DepVersions = { [version: string]: string[] };
@@ -11,10 +11,10 @@ export type CollectedDeps = { [depName: string]: DepVersions };
  * Collect all external dev deps for the repo.
  * @param exclude dep names to exclude
  */
-export function collectDevDeps(workspaceInfo: WorkspacePackagesInfo, exclude: string[]) {
-  const { rootPackageInfo, packageInfos, localPackages } = workspaceInfo;
+export function collectDevDeps(repoInfo: MonorepoInfo, exclude: string[]) {
+  const { rootPackageInfo, packageInfos } = repoInfo;
   const allPackageInfos = [rootPackageInfo, ...Object.values(packageInfos)];
-  const allExclude = [...exclude, ...localPackages];
+  const allExclude = [...exclude, ...Object.keys(packageInfos)];
 
   const devDeps: CollectedDeps = {};
   for (const packageInfo of allPackageInfos) {

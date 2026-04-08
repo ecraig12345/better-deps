@@ -1,6 +1,6 @@
 import fs from 'fs';
 import os from 'os';
-import { PackageInfo } from 'workspace-tools';
+import type { PackageInfo } from 'workspace-tools';
 
 export async function writePackageJsonUpdates(packageInfos: PackageInfo[]) {
   for (const { packageJsonPath, ...packageJson } of packageInfos) {

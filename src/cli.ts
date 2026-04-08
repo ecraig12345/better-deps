@@ -1,12 +1,12 @@
 import { InvalidArgumentError, Option, program } from 'commander';
-import { PackageInfo } from 'workspace-tools';
+import type { PackageInfo } from 'workspace-tools';
 import { hoistDevDeps } from './commands/hoistDevDeps';
 import { starLocalDevDeps } from './commands/starLocalDevDeps';
 import { unpinDevDeps } from './commands/unpinDevDeps';
 
 program
   .name('better-deps')
-  .description('CLI for cleaning up issues with JavaScript dependencies in monorepos/workspaces')
+  .description('CLI for cleaning up issues with JavaScript dependencies in monorepos')
   .version(require('../package.json').version);
 
 const checkOption = new Option(
@@ -33,7 +33,7 @@ function handleResult(res: PackageInfo[], check: boolean) {
 
 program
   .command('hoist-dev-deps')
-  .description('Hoist devDependencies from individual packages to the workspace root')
+  .description('Hoist devDependencies from individual packages to the monorepo root')
   .addOption(checkOption)
   .option('--exclude <deps...>', "Don't hoist these devDependencies")
   .addOption(

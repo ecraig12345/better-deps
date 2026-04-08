@@ -1,10 +1,10 @@
 import { jest } from '@jest/globals';
-import { WorkspacePackagesInfo } from '../../utils/types';
-import * as getWorkspaceInfoModule from '../../utils/getWorkspaceInfo';
+import { MonorepoInfo } from '../../utils/types';
+import * as getMonorepoInfoModule from '../../utils/getMonorepoInfo';
 
-export function mockWorkspaceAndLogs(fixture: WorkspacePackagesInfo | false) {
-  const getWorkspaceInfoMock = jest
-    .spyOn(getWorkspaceInfoModule, 'getWorkspaceInfo')
+export function mockMonorepoAndLogs(fixture: MonorepoInfo | false) {
+  const getMonorepoInfoMock = jest
+    .spyOn(getMonorepoInfoModule, 'getMonorepoInfo')
     .mockImplementation(() => {
       if (fixture) return fixture;
       throw new Error('options were not validated properly (should not reach this code)');
@@ -18,7 +18,7 @@ export function mockWorkspaceAndLogs(fixture: WorkspacePackagesInfo | false) {
   const consoleWarnMock = jest.spyOn(console, 'warn').mockImplementation(saveLog);
 
   const restore = () => {
-    getWorkspaceInfoMock.mockRestore();
+    getMonorepoInfoMock.mockRestore();
     consoleLogMock.mockRestore();
     consoleWarnMock.mockRestore();
   };

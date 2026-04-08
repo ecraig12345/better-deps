@@ -1,6 +1,5 @@
-import { PackageInfo } from 'workspace-tools';
-import { getWorkspaceInfo } from '../utils/getWorkspaceInfo';
-import { partialClonePackageInfo } from '../utils/partialClonePackageInfo';
+import type { PackageInfo } from 'workspace-tools';
+import { getMonorepoInfo } from '../utils/getMonorepoInfo';
 import { writePackageJsonUpdates } from '../utils/writePackageJsonUpdates';
 import { collectDevDeps } from '../utils/collectDevDeps';
 
@@ -40,7 +39,7 @@ function getUpdatedPackageInfo(packageInfo: PackageInfo, updateDevDeps: UpdateDe
   let updatedInfo: PackageInfo | undefined;
   for (const { name, oldVersion, newVersion } of updateDevDeps) {
     if (packageInfo.devDependencies[name] === oldVersion) {
-      updatedInfo ??= partialClonePackageInfo(packageInfo, ['devDependencies']);
+      updatedInfo ??= { ...packageInfo, devDependencies: { ...packageInfo.devDependencies } };
       updatedInfo.devDependencies![name] = newVersion;
     }
   }
@@ -50,11 +49,11 @@ function getUpdatedPackageInfo(packageInfo: PackageInfo, updateDevDeps: UpdateDe
 export function unpinDevDeps(options: UnpinDevDepsOptions) {
   const { range = 'minor', exclude = [], patch = [], minor = [], write = true } = options;
 
-  const workspaceInfo = getWorkspaceInfo();
-  const { rootPackageInfo, packageInfos } = workspaceInfo;
+  const repoInfo = getMonorepoInfo();
+  const { rootPackageInfo, packageInfos } = repoInfo;
 
   // collect external dev deps from the root package.json and individual packages
-  const externalDevDeps = collectDevDeps(workspaceInfo, exclude);
+  const externalDevDeps = collectDevDeps(repoInfo, exclude);
 
   // collect versions to update (use an array in case of multiple versions of a dep)
   const updateDevDeps: UpdateDepVersions = [];

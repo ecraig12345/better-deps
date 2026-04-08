@@ -1,24 +1,28 @@
 # better-deps
 
-CLI for reducing issues with JavaScript dependencies in monorepos/workspaces.
+CLI for reducing issues with JavaScript dependencies in monorepos.
+
+> ⚠️ Since this tool was written, the capabilities of package managers and [`syncpack`](https://syncpack.dev/semver-groups/with-range/) have improved, rendering this tool largely redundant. The `hoist-dev-deps` and `unpin-dev-deps` rules may still be useful for one-time migration purposes if they match your preferences.
 
 ## Caveat
 
-The changes implemented by this CLI may help reduce issues encountered in certain common monorepo setups, but they may not be applicable or preferable in all cases.
+The changes implemented by this CLI may help reduce issues encountered in certain common monorepo setups, but they may not be applicable or preferable in all cases (especially `hoist-dev-deps`).
 
 ## Commands
 
 Currently, each command has a `--check` mode which can be used in CI, but the commands must be run individually. In the future, the tool may be modified to follow more of a "linter" model with a configurable list of rules, or entirely rewritten as an ESLint plugin.
 
-- [`hoist-dev-deps`](#hoist-dev-deps)
-- [`star-local-dev-deps`](#star-local-dev-deps)
-- [`unpin-dev-deps`](#unpin-dev-deps)
+- [`hoist-dev-deps`](#hoist-dev-deps) (consider `catalog:` versions instead)
+- ~~[`star-local-dev-deps`](#star-local-dev-deps)~~ (use `workspace:` ranges and/or `syncpack` instead)
+- [`unpin-dev-deps`](#unpin-dev-deps) (consider using `syncpack` instead)
 
 ### `hoist-dev-deps`
 
-Remove `devDependencies` from individual packages and declare them at the monorepo/workspace root instead.
+Remove `devDependencies` from individual packages and declare them at the monorepo root instead.
 
 This approach helps mitigate issues with package manager behavior (particularly Yarn v1) and reduce churn, but it has some downsides. Alternatively, some repos may prefer to use a package manager which implements strict installation layout (essentially the opposite of this strategy).
+
+> **RECOMMENDED:** If your main concerns are version consistency and reducing churn, consider `catalog:` versions if using [`yarn` 4](https://yarnpkg.com/features/catalogs) or [`pnpm`](https://pnpm.io/catalogs). [`syncpack`](https://syncpack.dev/) (with default settings) can also enforce version consistency.
 
 #### Options
 
@@ -54,20 +58,22 @@ better-deps hoist-dev-deps --only @types/react @types/react-dom
 
 This is a _potentially_ "less bad" approach to mitigate issues with package manager behavior and reduce churn, though it has some downsides.
 
-- Pros:
-  - Reduces churn and merge conflicts when updating `devDependencies`. This is especially important for frequent updates with a tool such as Renovate or Dependabot.
-    - This is less important for Renovate now: its capability for lockfile-only in-range updates (such as updating the installed version for `"foo": "^1.0.0"` from `1.1.0` to `1.2.0`) has been improved, so its recommended config presets no longer pin `devDependencies` by default.
-  - Makes it easier for a human to update `devDependencies` without accidentally introducing mismatches and duplicates. (But you should also be using [syncpack](https://www.npmjs.com/package/syncpack) or another tool to prevent mismatches!)
+- **Pros:**
+  - Reduces churn and merge conflicts when updating `devDependencies`. _(better managed with `catalog:` versions if supported)_
+    - This is especially important for frequent updates with a tool such as Renovate or Dependabot, though potentially less so with Renovate now that its recommended config presets no longer pin `devDependencies` by default.
+  - Makes it easier for a human to update `devDependencies` without accidentally introducing mismatches and duplicates. _(better managed with `syncpack` or `catalog:` versions)_
   - Prevents the wrong version of a dep from being hoisted implicitly. Most package managers don't install dependencies strictly nested within their trees; instead, they flatten the tree to some degree, which involves implicitly hoisting some deps to be installed under the monorepo's root `node_modules`. Yarn (at least v1) seems _nondeterministic_ about which package version it chooses to install at the repo root if more than one version is present anywhere in the tree, sometimes leading to different behavior between computers. (npm may also have a variant of this problem when generating or updating the lock file.)
-- Cons:
+- **Cons:**
   - Makes it less obvious which packages use which `devDependencies`. This can be mitigated somewhat by using the `--threshold` option to hoist only things that are widely used.
   - May make it easier for packages to add implicit dependencies in production code. This can be mitigated by lint rules (which is a good practice regardless).
 
-Another approach which eliminates implicit hoisting while avoiding the cons listed above is to use a package manager which implements strict installation layout instead (essentially the opposite of this strategy). Some examples are [pnpm](https://pnpm.io/), [midgard-yarn-strict](https://www.npmjs.com/package/midgard-yarn-strict), or [npm's upcoming isolated mode](https://github.com/npm/rfcs/blob/main/accepted/0042-isolated-mode.md) once implemented. However, this approach doesn't address issues of churn from updating `devDependencies`.
+Another approach which eliminates implicit hoisting while avoiding the cons listed above is to use a package manager which implements strict installation layout instead (essentially the opposite of this strategy). Some examples are [`pnpm`](https://pnpm.io/), or [`yarn` 4 with `nodeLinker: pnpm`](https://yarnpkg.com/features/linkers#nodelinker-pnpm). Both those managers also support catalogs to prevent `package.json` churn.
 
 ### `star-local-dev-deps`
 
-Change version specs of `devDependencies` on local packages (those defined within the monorepo/workspace) to `*`.
+Change version specs of `devDependencies` on local packages (those defined within the monorepo) to `*`.
+
+> **RECOMMENDED:** prefer `workspace:` ranges for internal dependencies with package managers that support it, and/or use [`syncpack`](https://syncpack.dev/semver-groups/with-range/) instead.
 
 #### Options
 
@@ -86,6 +92,8 @@ Many monorepos define build scripts or configuration in local packages (which ma
 ### `unpin-dev-deps`
 
 Change exact versions of external `devDependencies` to use `^` or `~` ranges (excluding anything using a prerelease version). This is mainly an easy way to revert Renovate's old behavior of pinning `devDependencies`.
+
+> **RECOMMENDED:** use [`syncpack`](https://syncpack.dev/semver-groups/with-range/) instead, unless you just want one-time migration.
 
 #### Options
 

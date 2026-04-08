@@ -1,11 +1,11 @@
 import { describe, it, expect, afterEach } from '@jest/globals';
 import { hoistDevDeps } from '../../commands/hoistDevDeps';
-import { getFakeWorkspace, WorkspaceFixture } from '../testUtils/getFakeWorkspace';
-import { mockWorkspaceAndLogs } from '../testUtils/mockWorkspace';
+import { getFakeMonorepo, MonorepoFixture } from '../testUtils/getFakeMonorepo';
+import { mockMonorepoAndLogs } from '../testUtils/mockMonorepo';
 import { getDevDependencies } from '../testUtils/getDevDependencies';
 
 describe('hoistDevDeps', () => {
-  let mocks: ReturnType<typeof mockWorkspaceAndLogs> | undefined;
+  let mocks: ReturnType<typeof mockMonorepoAndLogs> | undefined;
 
   afterEach(() => {
     mocks?.restore();
@@ -13,18 +13,18 @@ describe('hoistDevDeps', () => {
 
   describe('basic', () => {
     const basicFixtures = {
-      basic: (): WorkspaceFixture => ({
+      basic: (): MonorepoFixture => ({
         root: { devDependencies: { typescript: '^4.0.0' } },
         packages: {
           pkg1: { devDependencies: { jest: '^28.0.0' } },
           pkg2: { devDependencies: { jest: '^28.0.0', rimraf: '^3.0.0' } },
         },
       }),
-      noRoot: (): WorkspaceFixture => ({
+      noRoot: (): MonorepoFixture => ({
         packages: { ...basicFixtures.basic().packages },
       }),
       /** has mismatched jest versions, hoists `^28.0.0` due to popularity */
-      mismatched: (): WorkspaceFixture => ({
+      mismatched: (): MonorepoFixture => ({
         packages: {
           pkg1: { devDependencies: { jest: '^28.0.0' } },
           pkg2: { devDependencies: { jest: '^28.0.0' } },
@@ -32,7 +32,7 @@ describe('hoistDevDeps', () => {
         },
       }),
       /** has mismatched jest versions, hoists `^27.0.0` because it's at root */
-      mismatchedWithRoot: (): WorkspaceFixture => ({
+      mismatchedWithRoot: (): MonorepoFixture => ({
         root: { devDependencies: { jest: '^27.0.0' } },
         packages: {
           ...basicFixtures.mismatched().packages,
@@ -41,7 +41,7 @@ describe('hoistDevDeps', () => {
         },
       }),
       /** has mismatched jest versions where `^27.0.0 is at root only, hoists nothing */
-      mismatchedRootOnly: (): WorkspaceFixture => {
+      mismatchedRootOnly: (): MonorepoFixture => {
         const fixture = basicFixtures.mismatchedWithRoot();
         delete fixture.packages?.pkg3;
         return fixture;
@@ -49,8 +49,8 @@ describe('hoistDevDeps', () => {
     };
 
     it('works in basic case', () => {
-      const fixture = getFakeWorkspace(basicFixtures.basic());
-      mocks = mockWorkspaceAndLogs(fixture);
+      const fixture = getFakeMonorepo(basicFixtures.basic());
+      mocks = mockMonorepoAndLogs(fixture);
 
       const res = hoistDevDeps({ write: false });
       // test the full objects to verify other properties are preserved
@@ -66,8 +66,8 @@ describe('hoistDevDeps', () => {
     });
 
     it("works if root doesn't already have devDependencies", () => {
-      const fixture = getFakeWorkspace(basicFixtures.noRoot());
-      mocks = mockWorkspaceAndLogs(fixture);
+      const fixture = getFakeMonorepo(basicFixtures.noRoot());
+      mocks = mockMonorepoAndLogs(fixture);
 
       const res = hoistDevDeps({ write: false });
       // test the full objects to verify other properties are preserved
@@ -83,21 +83,21 @@ describe('hoistDevDeps', () => {
     });
 
     it('works with nothing to hoist', () => {
-      const fixture = getFakeWorkspace({ packages: { pkg1: {} } });
-      mocks = mockWorkspaceAndLogs(fixture);
+      const fixture = getFakeMonorepo({ packages: { pkg1: {} } });
+      mocks = mockMonorepoAndLogs(fixture);
 
       expect(hoistDevDeps({ write: false })).toEqual([]);
       expect(mocks.getConsoleLogs()).toEqual([]);
     });
 
     it("doesn't hoist local devDependencies", () => {
-      const fixture = getFakeWorkspace({
+      const fixture = getFakeMonorepo({
         packages: {
           pkg1: { devDependencies: { jest: '^28.0.0', scripts: '^1.0.0' } },
           scripts: {},
         },
       });
-      mocks = mockWorkspaceAndLogs(fixture);
+      mocks = mockMonorepoAndLogs(fixture);
 
       const res = hoistDevDeps({ write: false });
       expect(getDevDependencies(res)).toEqual({
@@ -108,10 +108,10 @@ describe('hoistDevDeps', () => {
     });
 
     it("doesn't hoist dependencies", () => {
-      const fixture = getFakeWorkspace({
+      const fixture = getFakeMonorepo({
         packages: { pkg1: { dependencies: { jest: '^28.0.0' } } },
       });
-      mocks = mockWorkspaceAndLogs(fixture);
+      mocks = mockMonorepoAndLogs(fixture);
 
       expect(hoistDevDeps({ write: false })).toEqual([]);
       expect(mocks.getConsoleLogs()).toEqual([]);
@@ -119,12 +119,12 @@ describe('hoistDevDeps', () => {
 
     it('logs in sorted order', () => {
       const deps = ['e', 'c', 'a', 'b', 'd'];
-      const fixture = getFakeWorkspace({
+      const fixture = getFakeMonorepo({
         packages: {
           pkg1: { devDependencies: Object.fromEntries(deps.map((dep) => [dep, '1.0.0'])) },
         },
       });
-      mocks = mockWorkspaceAndLogs(fixture);
+      mocks = mockMonorepoAndLogs(fixture);
 
       hoistDevDeps({ write: false });
       const sortedDeps = [...deps].sort();
@@ -133,8 +133,8 @@ describe('hoistDevDeps', () => {
     });
 
     it('chooses most popular version if mismatched and no root version present', () => {
-      const fixture = getFakeWorkspace(basicFixtures.mismatched());
-      mocks = mockWorkspaceAndLogs(fixture);
+      const fixture = getFakeMonorepo(basicFixtures.mismatched());
+      mocks = mockMonorepoAndLogs(fixture);
 
       const res = hoistDevDeps({ write: false });
       expect(getDevDependencies(res)).toEqual({
@@ -151,8 +151,8 @@ describe('hoistDevDeps', () => {
     });
 
     it('chooses root version if present and mismatched', () => {
-      const fixture = getFakeWorkspace(basicFixtures.mismatchedWithRoot());
-      mocks = mockWorkspaceAndLogs(fixture);
+      const fixture = getFakeMonorepo(basicFixtures.mismatchedWithRoot());
+      mocks = mockMonorepoAndLogs(fixture);
 
       const res = hoistDevDeps({ write: false });
       expect(getDevDependencies(res)).toEqual({
@@ -168,8 +168,8 @@ describe('hoistDevDeps', () => {
     });
 
     it('does nothing if mismatched version is at root only', () => {
-      const fixture = getFakeWorkspace(basicFixtures.mismatchedRootOnly());
-      mocks = mockWorkspaceAndLogs(fixture);
+      const fixture = getFakeMonorepo(basicFixtures.mismatchedRootOnly());
+      mocks = mockMonorepoAndLogs(fixture);
 
       expect(hoistDevDeps({ write: false })).toEqual([]);
       expect(mocks.getConsoleLogs()).toEqual([
@@ -182,7 +182,7 @@ describe('hoistDevDeps', () => {
 
   describe('exclude', () => {
     const excludeFixtures = {
-      basic: (): WorkspaceFixture => ({
+      basic: (): MonorepoFixture => ({
         packages: {
           pkg1: { devDependencies: { jest: '^28.0.0', rimraf: '^3.0.0' } },
         },
@@ -190,8 +190,8 @@ describe('hoistDevDeps', () => {
     };
 
     it('excludes deps', () => {
-      const fixture = getFakeWorkspace(excludeFixtures.basic());
-      mocks = mockWorkspaceAndLogs(fixture);
+      const fixture = getFakeMonorepo(excludeFixtures.basic());
+      mocks = mockMonorepoAndLogs(fixture);
 
       const res = hoistDevDeps({ exclude: ['rimraf'], write: false });
       expect(res).toEqual([
@@ -202,11 +202,11 @@ describe('hoistDevDeps', () => {
     });
 
     it('excludes deps even if specified at root', () => {
-      const fixture = getFakeWorkspace({
+      const fixture = getFakeMonorepo({
         ...excludeFixtures.basic(),
         root: { devDependencies: { rimraf: '^3.0.0' } },
       });
-      mocks = mockWorkspaceAndLogs(fixture);
+      mocks = mockMonorepoAndLogs(fixture);
 
       const res = hoistDevDeps({ exclude: ['rimraf'], write: false });
       expect(getDevDependencies(res)).toEqual({
@@ -219,7 +219,7 @@ describe('hoistDevDeps', () => {
 
   describe('only', () => {
     const onlyFixtures = {
-      basic: (): WorkspaceFixture => ({
+      basic: (): MonorepoFixture => ({
         root: { devDependencies: { rimraf: '^3.0.0' } },
         packages: {
           pkg1: {
@@ -231,7 +231,7 @@ describe('hoistDevDeps', () => {
     };
 
     it('throws if used with other options', () => {
-      mocks = mockWorkspaceAndLogs(false);
+      mocks = mockMonorepoAndLogs(false);
       expect(() => hoistDevDeps({ only: ['pkg1'], threshold: 0.5, write: false })).toThrowError(
         '`only` and other options are not compatible',
       );
@@ -241,8 +241,8 @@ describe('hoistDevDeps', () => {
     });
 
     it('respects option', () => {
-      const fixture = getFakeWorkspace(onlyFixtures.basic());
-      mocks = mockWorkspaceAndLogs(fixture);
+      const fixture = getFakeMonorepo(onlyFixtures.basic());
+      mocks = mockMonorepoAndLogs(fixture);
 
       const res = hoistDevDeps({ only: ['jest', 'typescript'], write: false });
       expect(getDevDependencies(res)).toEqual({
@@ -257,25 +257,25 @@ describe('hoistDevDeps', () => {
     });
 
     it("does nothing with package that's never a devDependency", () => {
-      const fixture = getFakeWorkspace({
+      const fixture = getFakeMonorepo({
         packages: {
           pkg1: { dependencies: { glob: '^8.0.0' }, devDependencies: { rimraf: '^3.0.0' } },
         },
       });
-      mocks = mockWorkspaceAndLogs(fixture);
+      mocks = mockMonorepoAndLogs(fixture);
 
       expect(hoistDevDeps({ only: ['glob'], write: false })).toEqual([]);
       expect(mocks.getConsoleLogs()).toEqual([]);
     });
 
     it('does nothing with local devDependency', () => {
-      const fixture = getFakeWorkspace({
+      const fixture = getFakeMonorepo({
         packages: {
           pkg1: { devDependencies: { scripts: '^1.0.0' } },
           scripts: {},
         },
       });
-      mocks = mockWorkspaceAndLogs(fixture);
+      mocks = mockMonorepoAndLogs(fixture);
 
       expect(hoistDevDeps({ only: ['scripts'], write: false })).toEqual([]);
       expect(mocks.getConsoleLogs()).toEqual([]);
@@ -285,7 +285,7 @@ describe('hoistDevDeps', () => {
   describe('threshold and always', () => {
     const thresholdFixtures = {
       /** hoists jest and rimraf */
-      basic: (): WorkspaceFixture => ({
+      basic: (): MonorepoFixture => ({
         packages: {
           pkg1: {
             dependencies: { typescript: '^4.0.0' }, // shouldn't count for threshold
@@ -297,7 +297,7 @@ describe('hoistDevDeps', () => {
         },
       }),
       /** has mismatched jest but hoists 28 due to over threshold */
-      mismatch: (): WorkspaceFixture => ({
+      mismatch: (): MonorepoFixture => ({
         packages: {
           pkg1: { devDependencies: { jest: '^28.0.0' } },
           pkg2: { devDependencies: { jest: '^28.0.0' } },
@@ -305,18 +305,18 @@ describe('hoistDevDeps', () => {
         },
       }),
       /** cumulatively, jest is above 50% threshold, but no individual version is above threshold */
-      mismatchBelowThreshold: (): WorkspaceFixture => ({
+      mismatchBelowThreshold: (): MonorepoFixture => ({
         packages: { ...thresholdFixtures.mismatch().packages, pkg4: {}, pkg5: {} },
       }),
       /** as with `mismatchBelowThreshold` but jest 27 is also at root and is hoisted */
-      mismatchBelowThresholdWithRoot: (): WorkspaceFixture => ({
+      mismatchBelowThresholdWithRoot: (): MonorepoFixture => ({
         ...thresholdFixtures.mismatchBelowThreshold(),
         root: { devDependencies: { jest: '^27.0.0' } },
       }),
     };
 
     it('throws if invalid threshold', () => {
-      mocks = mockWorkspaceAndLogs(false);
+      mocks = mockMonorepoAndLogs(false);
       expect(() => hoistDevDeps({ write: false, threshold: -1 })).toThrowError(
         '`threshold` must be between 0 and 1 inclusive',
       );
@@ -326,22 +326,22 @@ describe('hoistDevDeps', () => {
     });
 
     it('throws if `always` used without `threshold`', () => {
-      mocks = mockWorkspaceAndLogs(false);
+      mocks = mockMonorepoAndLogs(false);
       expect(() => hoistDevDeps({ write: false, always: ['pkg1'] })).toThrowError(
         '`always` is only relevant with `threshold`',
       );
     });
 
     it('throws if a package is listed in both `exclude` and `always`', () => {
-      mocks = mockWorkspaceAndLogs(false);
+      mocks = mockMonorepoAndLogs(false);
       expect(() =>
         hoistDevDeps({ write: false, exclude: ['pkg1'], always: ['pkg1'], threshold: 0.5 }),
       ).toThrowError('a package cannot be listed in both `exclude` and `always`');
     });
 
     it('respects threshold', () => {
-      const fixture = getFakeWorkspace(thresholdFixtures.basic());
-      mocks = mockWorkspaceAndLogs(fixture);
+      const fixture = getFakeMonorepo(thresholdFixtures.basic());
+      mocks = mockMonorepoAndLogs(fixture);
 
       const res = hoistDevDeps({ threshold: 0.5, write: false });
       expect(res).toEqual([
@@ -364,14 +364,14 @@ describe('hoistDevDeps', () => {
     });
 
     it('overrides threshold with always', () => {
-      const fixture = getFakeWorkspace({
+      const fixture = getFakeMonorepo({
         packages: {
           pkg1: { devDependencies: { jest: '^28.0.0' } },
           pkg2: {},
           pkg3: {},
         },
       });
-      mocks = mockWorkspaceAndLogs(fixture);
+      mocks = mockMonorepoAndLogs(fixture);
 
       const res = hoistDevDeps({ always: ['jest'], threshold: 0.5, write: false });
       expect(getDevDependencies(res)).toEqual({
@@ -386,11 +386,11 @@ describe('hoistDevDeps', () => {
     });
 
     it('hoists root deps regardless of threshold', () => {
-      const fixture = getFakeWorkspace({
+      const fixture = getFakeMonorepo({
         ...thresholdFixtures.basic(),
         root: { devDependencies: { glob: '^8.0.0' } },
       });
-      mocks = mockWorkspaceAndLogs(fixture);
+      mocks = mockMonorepoAndLogs(fixture);
 
       const res = hoistDevDeps({ threshold: 0.5, write: false });
       expect(getDevDependencies(res)).toEqual({
@@ -410,8 +410,8 @@ describe('hoistDevDeps', () => {
     });
 
     it('hoists deps over threshold even if mismatched', () => {
-      const fixture = getFakeWorkspace(thresholdFixtures.mismatch());
-      mocks = mockWorkspaceAndLogs(fixture);
+      const fixture = getFakeMonorepo(thresholdFixtures.mismatch());
+      mocks = mockMonorepoAndLogs(fixture);
 
       const res = hoistDevDeps({ threshold: 0.5, write: false });
       expect(getDevDependencies(res)).toEqual({
@@ -431,8 +431,8 @@ describe('hoistDevDeps', () => {
 
     // behavior could potentially be better here
     it('does not count mismatched versions cumulatively when comparing to threshold', () => {
-      const fixture = getFakeWorkspace(thresholdFixtures.mismatchBelowThreshold());
-      mocks = mockWorkspaceAndLogs(fixture);
+      const fixture = getFakeMonorepo(thresholdFixtures.mismatchBelowThreshold());
+      mocks = mockMonorepoAndLogs(fixture);
 
       const res = hoistDevDeps({ threshold: 0.5, write: false });
       expect(res).toEqual([]);
@@ -447,8 +447,8 @@ describe('hoistDevDeps', () => {
     });
 
     it('hoists mismatched version even if below threshold when specified in `always`', () => {
-      const fixture = getFakeWorkspace(thresholdFixtures.mismatchBelowThreshold());
-      mocks = mockWorkspaceAndLogs(fixture);
+      const fixture = getFakeMonorepo(thresholdFixtures.mismatchBelowThreshold());
+      mocks = mockMonorepoAndLogs(fixture);
 
       const res = hoistDevDeps({ always: ['jest'], threshold: 0.5, write: false });
       expect(getDevDependencies(res)).toEqual({
@@ -467,8 +467,8 @@ describe('hoistDevDeps', () => {
     });
 
     it('hoists mismatched deps under threshold if at root', () => {
-      const fixture = getFakeWorkspace(thresholdFixtures.mismatchBelowThresholdWithRoot());
-      mocks = mockWorkspaceAndLogs(fixture);
+      const fixture = getFakeMonorepo(thresholdFixtures.mismatchBelowThresholdWithRoot());
+      mocks = mockMonorepoAndLogs(fixture);
 
       const res = hoistDevDeps({ threshold: 0.5, write: false });
       expect(getDevDependencies(res)).toEqual({

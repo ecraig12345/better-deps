@@ -1,15 +1,14 @@
 import { describe, it, expect } from '@jest/globals';
 import { findGitRoot } from 'workspace-tools';
-import { getWorkspaceInfo } from '../../utils/getWorkspaceInfo';
+import { getMonorepoInfo } from '../../utils/getMonorepoInfo';
 
-describe('getWorkspaceInfo', () => {
+describe('getMonorepoInfo', () => {
   it('works in a non-monorepo', () => {
     const gitRoot = findGitRoot(process.cwd());
-    expect(getWorkspaceInfo()).toEqual({
-      workspaceRoot: gitRoot,
+    expect(getMonorepoInfo()).toEqual({
+      root: gitRoot,
       rootPackageInfo: expect.objectContaining({ name: 'better-deps' }),
       packageInfos: {},
-      localPackages: [],
     });
   });
 });
