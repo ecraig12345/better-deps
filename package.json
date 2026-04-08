@@ -1,7 +1,7 @@
 {
   "name": "better-deps",
-  "version": "0.3.0",
-  "description": "CLI for reducing issues with JavaScript dependencies",
+  "version": "0.3.1",
+  "description": "(deprecated) CLI for reducing issues with JavaScript dependencies",
   "bin": {
     "better-deps": "./bin/better-deps.js"
   },

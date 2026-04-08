@@ -1,5 +1,12 @@
 # better-deps
 
+## 0.3.1
+
+### Patch Changes
+
+- Update readme to recommend using [`syncpack`](https://syncpack.dev/semver-groups/with-range/) or modern package manager features instead of this tool. ([c546bf20e2e1049cfce206d388af9ec07fdfc97a](https://github.com/ecraig12345/better-deps/commit/c546bf20e2e1049cfce206d388af9ec07fdfc97a))
+- Update `workspace-tools` to 0.41.3 and replace "workspace" terminology with "monorepo" internally when it refers to the entire monorepo. ([c546bf20e2e1049cfce206d388af9ec07fdfc97a](https://github.com/ecraig12345/better-deps/commit/c546bf20e2e1049cfce206d388af9ec07fdfc97a))
+
 ## 0.3.0
 
 ### Minor Changes
